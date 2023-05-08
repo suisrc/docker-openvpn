@@ -62,6 +62,7 @@ trap cleanup TERM
 
 # wait $openvpn_pid
 
+
 #=========================================================
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
