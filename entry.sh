@@ -40,6 +40,7 @@ if [[ $DANTE_CONF == http* ]]; then
 fi
 # Dante configuration file.
 if [[ ! -f $DANTE_CONF ]]; then
+    # default dante conf file.
     DANTE_CONF=/vpn/sockd.default.conf
 fi
 
@@ -57,4 +58,22 @@ openvpn_pid=$!
 
 trap cleanup TERM
 
-wait $openvpn_pid
+# wait $openvpn_pid
+
+#=========================================================
+# 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
+if [[ -n $HEALTH_URI ]]; then
+    next=1
+    while $next; do
+        sleep 30
+        http_code=$(curl -ksSL -w %{http_code} "$HEALTH_URI")
+        if [[ $http_code != 200 ]]; then
+            echo "health check failed: $HEALTH_URI" >&2
+            next=0
+        else
+            echo "health check success: $http_code" >&2
+        fi
+    done
+else
+    wait $openvpn_pid
+fi

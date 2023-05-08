@@ -1,9 +1,10 @@
 FROM alpine:3.17
 
 RUN apk add --no-cache curl bash openvpn dante
+ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 
-COPY *.sh /usr/local/bin
-RUN chmod +x /usr/local/bin/*.sh && mkdir -p /vpn/log/
-ADD ["openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
+# 监控检查在entry.sh中执行
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
+# CMD curl -f http://localhost:1080/ || exit 1
 
-ENTRYPOINT [ "entry.sh" ]
+ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
