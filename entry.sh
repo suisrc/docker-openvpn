@@ -48,6 +48,8 @@ echo "using openvpn conf file: $OPVPN_CONF"
 echo "using openvpn auth file: $OPVPN_AUTH"
 echo "using dante   conf file: $DANTE_CONF"
 
+mkdir /vpn/log
+
 # Dante Running. -D: run as daemon
 sockd -f "$DANTE_CONF" -D
 
@@ -62,7 +64,7 @@ trap cleanup TERM
 
 #=========================================================
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
-if [[ -n $HEALTH_URI ]]; then
+if [[ -n "$HEALTH_URI" ]]; then
     next=1
     while $next; do
         sleep 30
