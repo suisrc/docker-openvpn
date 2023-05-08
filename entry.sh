@@ -64,7 +64,9 @@ trap cleanup TERM
 
 #=========================================================
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
-if [[ -n "$HEALTH_URI" ]]; then
+if [[ -z "$HEALTH_URI" ]]; then
+    wait $openvpn_pid
+else
     next=1
     while $next; do
         sleep 30
@@ -76,6 +78,4 @@ if [[ -n "$HEALTH_URI" ]]; then
             echo "health check success: $http_code" >&2
         fi
     done
-else
-    wait $openvpn_pid
 fi
