@@ -49,9 +49,16 @@ echo "using openvpn auth file: $OPVPN_AUTH"
 echo "using dante   conf file: $DANTE_CONF"
 
 mkdir /vpn/log
-
 # Dante Running. -D: run as daemon
-sockd -f "$DANTE_CONF" -D
+# sockd -f "$DANTE_CONF" -D
+
+# 处理ALLOWS_IPS
+if [[ -n "$ALLOWS_IPS" ]]; then
+    echo "using openvpn allows ips: $ALLOWS_IPS"
+    echo "$ALLOWS_IPS" | tr ',' '\n' | while read -r line; do
+        echo "route $line net_gateway" >> "$OPVPN_CONF"
+    done
+fi
 
 # OpenVPN Running.
 openvpn --config "$OPVPN_CONF" "--auth-user-pass" "$OPVPN_AUTH" &
@@ -62,6 +69,9 @@ trap cleanup TERM
 
 # wait $openvpn_pid
 
+# 延迟10s启动dante代理(因为代理出口使用tun0，需要等待openvpn启动完成)
+sleep 10
+sockd -f "$DANTE_CONF" -D
 
 #=========================================================
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
