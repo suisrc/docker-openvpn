@@ -13,7 +13,7 @@ env:
   DOCKER_REGISTRY: docker.io
 
 jobs:
-  build-openresty:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,19 +23,19 @@ jobs:
         run: |
           docker build -t image .
 
-      - name: Push github image
-        run: |
-          REGISTRY_URL=$GITHUB_REGISTRY
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login $REGISTRY_URL -u ${{ github.actor }} --password-stdin
+      # - name: Push github image
+      #   run: |
+      #     REGISTRY_URL=$GITHUB_REGISTRY
+      #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login $REGISTRY_URL -u ${{ github.actor }} --password-stdin
 
-          IMAGE_ID=$REGISTRY_URL/$DOCKER_IMAGE_NAME
-          echo IMAGE_ID=$IMAGE_ID
+      #     IMAGE_ID=$REGISTRY_URL/$DOCKER_IMAGE_NAME
+      #     echo IMAGE_ID=$IMAGE_ID
 
-          VERSION=$DOCKER_VERSION
-          echo VERSION=$VERSION
+      #     VERSION=$DOCKER_VERSION
+      #     echo VERSION=$VERSION
 
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      #     docker tag image $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
 
       - name: Push docker image
         run: |
