@@ -78,13 +78,12 @@ sockd -f "$DANTE_CONF" -D
 if [[ -z "$HEALTH_URI" ]]; then
     wait $openvpn_pid
 else
-    next=1
-    while $next; do
+    while true; do
         sleep 30
         http_code=$(curl -ksSL -w %{http_code} "$HEALTH_URI")
         if [[ $http_code != 200 ]]; then
             echo "health check failed: $HEALTH_URI" >&2
-            next=0
+            exit 1
         else
             echo "health check success: $http_code" >&2
         fi
