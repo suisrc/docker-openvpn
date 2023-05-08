@@ -9,7 +9,8 @@ ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 
 ENV OPVPN_AUTH= \
     OPVPN_CONF= \
-    DANTE_CONF= \
+    ALLOWS_IPS= \
     HEALTH_URI= \
-    ALLOWS_IPS=
+    DANTE_CONF= \
+    PROXY_SOCK=on 
 ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
