@@ -1,6 +1,6 @@
 FROM alpine:3.17
 
-RUN apk add --no-cache curl bash openvpn dante
+RUN apk add --no-cache curl bash openvpn dante-server
 ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 
 # 监控检查在entry.sh中执行
