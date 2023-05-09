@@ -84,7 +84,7 @@ fi
 if [[ -z "$HEALTH_URI" ]]; then
     if [[ -n "$TESTIP_URI" ]]; then
         sleep 10 # 等待VPN处理完成，测试一下IP地址
-        echo "public ip: $(curl -ksSL "$HEALTH_URI")" >&2
+        echo "public ip: $(curl -ksSL $TESTIP_URI)" >&2
     fi
     wait $openvpn_pid
 else
