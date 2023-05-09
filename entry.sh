@@ -82,6 +82,10 @@ if [[ -n "$SUCC_SHELL" ]]; then
 fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
+    if [[ -n "$TESTIP_URI" ]]; then
+        sleep 10 # 等待VPN处理完成，测试一下IP地址
+        echo "public ip: $(curl -ksSL "$HEALTH_URI")" >&2
+    fi
     wait $openvpn_pid
 else
     while true; do

@@ -13,5 +13,6 @@ ENV PROXY_SOCK=on \
     ALLOWS_IPS= \
     DANTE_CONF= \
     SUCC_SHELL= \
-    HEALTH_URI=
+    HEALTH_URI= \
+    TESTIP_URI= https://api.ipify.org
 ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
