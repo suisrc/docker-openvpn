@@ -76,18 +76,21 @@ fi
 # wait $openvpn_pid
 
 #=========================================================
+# 成功启动后执行的脚本
+if [[ -n "$SUCC_SHELL" ]]; then
+  bash -c "$SUCC_SHELL"
+fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
     wait $openvpn_pid
 else
     while true; do
         sleep 30
-        http_code=$(curl -ksSL -w %{http_code} "$HEALTH_URI")
-        if [[ $http_code != 200 ]]; then
-            echo "health check failed: $HEALTH_URI" >&2
-            exit 1
+        xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
+        if [[ $xbody == *=200 ]]; then
+            echo "health check success: $xbody" >&2
         else
-            echo "health check success: $http_code" >&2
+            echo "health check failed:  $xbody" >&2
         fi
     done
 fi

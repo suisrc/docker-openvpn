@@ -7,10 +7,11 @@ ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
 # CMD curl -f http://localhost:1080/ || exit 1
 
-ENV OPVPN_AUTH= \
+ENV PROXY_SOCK=on \ 
+    OPVPN_AUTH= \
     OPVPN_CONF= \
     ALLOWS_IPS= \
-    HEALTH_URI= \
     DANTE_CONF= \
-    PROXY_SOCK=on 
+    SUCC_SHELL= \
+    HEALTH_URI=
 ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
