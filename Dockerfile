@@ -10,7 +10,7 @@ ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 ENV PROXY_SOCK=on \ 
     OPVPN_AUTH= \
     OPVPN_CONF= \
-    ALLOWS_IPS= \
+    OPSKIP_IPS= \
     DANTE_CONF= \
     SUCC_SHELL= \
     HEALTH_URI= \

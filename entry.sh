@@ -44,19 +44,30 @@ if [[ ! -f $DANTE_CONF ]]; then
     DANTE_CONF=/vpn/sockd.default.conf
 fi
 
-echo "using openvpn conf file: $OPVPN_CONF"
-echo "using openvpn auth file: $OPVPN_AUTH"
-echo "using dante   conf file: $DANTE_CONF"
-
-mkdir /vpn/log
-
-# 处理ALLOWS_IPS
-if [[ -n "$ALLOWS_IPS" ]]; then
-    echo "using openvpn allows ips: $ALLOWS_IPS"
-    echo "$ALLOWS_IPS" | tr ',' '\n' | while read -r line; do
+# 处理OPSKIP_IPS
+if [[ -n "$OPSKIP_IPS" ]]; then
+    echo "using openvpn allows ips: $OPSKIP_IPS"
+    echo "$OPSKIP_IPS" | tr ',' '\n' | while read -r line; do
+        if [[ $line == */* ]]; then
+            # ip/mask => ip mask
+            ip=${line%/*}
+            mk=${line#*/}
+            mk0=$((1 << (32 - $mk) - 1))
+            mk1=$((mk0 >> 24 & 0xff ^ 0xff))
+            mk2=$((mk0 >> 16 & 0xff ^ 0xff))
+            mk3=$((mk0 >> 8 & 0xff ^ 0xff))
+            mk4=$((mk0 & 0xff ^ 0xff))
+            line="$ip $mk1.$mk2.$mk3.$mk4"
+        fi
         echo "route $line net_gateway" >> "$OPVPN_CONF"
     done
 fi
+
+# 打印启动使用的配置
+echo "using openvpn conf file: $OPVPN_CONF"
+echo "using openvpn auth file: $OPVPN_AUTH"
+
+mkdir /vpn/log
 
 # OpenVPN Running.
 openvpn --config "$OPVPN_CONF" "--auth-user-pass" "$OPVPN_AUTH" &
@@ -67,9 +78,9 @@ trap cleanup TERM
 
 # Dante Running. -D: run as daemon
 # sockd -f "$DANTE_CONF" -D
-# 延迟10s启动dante代理(因为代理出口使用tun0，需要等待openvpn启动完成)
 if [[ "$PROXY_SOCK" == "on" ]]; then
-    sleep 10
+    echo "using dante conf file: $DANTE_CONF"
+    sleep 10 # 延迟10s启动dante代理,openvpn启动tun0慢一些
     sockd -f "$DANTE_CONF" -D
 fi
 
@@ -83,7 +94,7 @@ fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
     if [[ -n "$TESTIP_URI" ]]; then
-        sleep 10 # 等待VPN处理完成，测试一下IP地址
+        sleep 1 # 等待VPN处理完成，测试一下IP地址
         echo "public ip: $(curl -ksSL $TESTIP_URI)" >&2
     fi
     wait $openvpn_pid
