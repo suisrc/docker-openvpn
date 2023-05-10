@@ -7,7 +7,7 @@ ADD ["entry.sh", "wireguard.demo.conf", "sockd.default.conf", "/vpn/"]
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
 # CMD curl -f http://localhost:1080/ || exit 1
 
-ENV SOCKS5=on \ 
+ENV SOCKS5="off" \ 
     WG_PRIVATE_KEY= \
     WG_ADDRESS_KEY= \
     WG_PEER_ENDPOINT= \

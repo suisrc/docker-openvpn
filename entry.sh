@@ -57,8 +57,7 @@ if [[ ! -f $DANTE_CONF ]]; then
     DANTE_CONF=/vpn/sockd.default.conf
 fi
 
-echo "using wireg conf file: $WG_CONF"
-echo "using dante conf file: $DANTE_CONF"
+echo "using wireguard conf file: $WG_CONF"
 
 wg-quick up wg0
 # 如果没有/sys/class/net/wg0 文件启动失败，退出
@@ -75,7 +74,8 @@ echo "wg0 has been install"
 trap cleanup TERM
 
 # 启动dante-socks5代理
-if [[ "$PROXY_SOCK" == "on" ]]; then
+if [[ "$SOCKS5" == "on" ]]; then
+    echo "using dante conf file: $DANTE_CONF"
     sockd -f "$DANTE_CONF" -D
 fi
 
