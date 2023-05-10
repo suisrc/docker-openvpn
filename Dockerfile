@@ -7,7 +7,7 @@ ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
 # CMD curl -f http://localhost:1080/ || exit 1
 
-ENV PROXY_SOCK=on \ 
+ENV SOCKS5="off" \ 
     OPVPN_AUTH= \
     OPVPN_CONF= \
     OPSKIP_IPS= \

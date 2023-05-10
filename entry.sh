@@ -78,7 +78,7 @@ trap cleanup TERM
 
 # Dante Running. -D: run as daemon
 # sockd -f "$DANTE_CONF" -D
-if [[ "$PROXY_SOCK" == "on" ]]; then
+if [[ "$SOCKS5" == "on" ]]; then
     echo "using dante conf file: $DANTE_CONF"
     sleep 10 # 延迟10s启动dante代理,openvpn启动tun0慢一些
     sockd -f "$DANTE_CONF" -D
