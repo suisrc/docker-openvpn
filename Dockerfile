@@ -7,7 +7,7 @@ ADD ["entry.sh", "wireguard.demo.conf", "sockd.default.conf", "/vpn/"]
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
 # CMD curl -f http://localhost:1080/ || exit 1
 
-ENV PROXY_SOCK=on \ 
+ENV SOCKS5=on \ 
     WG_PRIVATE_KEY= \
     WG_ADDRESS_KEY= \
     WG_PEER_ENDPOINT= \
@@ -15,6 +15,7 @@ ENV PROXY_SOCK=on \
     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\
     WG_ADDRESS_MTU= \
     WG_PEER_ALLOWED_IPS="0.0.0.0/0"\
+    WG_PEER_SKIPPED_IPS= \
     WG_PEER_KEEPALIVE= \
     WG_CONF= \
     DANTE_CONF= \
