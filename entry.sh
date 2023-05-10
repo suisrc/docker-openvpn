@@ -80,7 +80,7 @@ trap cleanup TERM
 # sockd -f "$DANTE_CONF" -D
 if [[ "$SOCKS5" == "on" ]]; then
     echo "using dante conf file: $DANTE_CONF"
-    sleep 10 # 延迟10s启动dante代理,openvpn启动tun0慢一些
+    sleep 5 # 延迟10s启动dante代理,openvpn启动tun0慢一些
     sockd -f "$DANTE_CONF" -D
 fi
 
@@ -94,18 +94,19 @@ fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
     if [[ -n "$TESTIP_URI" ]]; then
-        sleep 1 # 等待VPN处理完成，测试一下IP地址
+        sleep 5 # 等待VPN处理完成，测试一下IP地址
         echo "public ip: $(curl -ksSL $TESTIP_URI)" >&2
     fi
     wait $openvpn_pid
 else
+    sleep 5 # 等待VPN处理完成，测试一下IP地址
     while true; do
-        sleep 30
         xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
         if [[ $xbody == *=200 ]]; then
             echo "health check success: $xbody" >&2
         else
             echo "health check failed:  $xbody" >&2
         fi
+        sleep 30
     done
 fi
