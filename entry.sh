@@ -5,36 +5,49 @@ set -o nounset
 set -o pipefail
 
 cleanup() {
-    kill TERM "$openvpn_pid"
+    echo "cleaning wg0..."
+    wg-quick down wg0
     exit 0
 }
 
-# OpenVPN OPVPN_AUTH include ":", is user:pass, wirte to file
-if [[ $OPVPN_AUTH == *:* ]]; then
-    echo "$OPVPN_AUTH" | tr ':' '\n' > /vpn/auth.txt
-    OPVPN_AUTH=/vpn/auth.txt
-fi
-# OpenVPN auth file.
-if [[ ! -f $OPVPN_AUTH ]]; then
-    echo "openvpn auth file not found: $OPVPN_AUTH" >&2
-    exit 1
+# if file is prefix http, download it.
+if [[ $WG_CONF == http* ]]; then
+    echo "downloading wireguard conf file: $WG_CONF"
+    curl -ksSL "$WG_CONF" -o /vpn/wireguard.conf
+    WG_CONF=/vpn/wireguard.conf
 fi
 
-# if file is prefix http, download it.
-if [[ $OPVPN_CONF == http* ]]; then
-    echo "downloading openvpn conf file: $OPVPN_CONF" >&2
-    curl -ksSL "$OPVPN_CONF" -o /vpn/openvpn.conf
-    OPVPN_CONF=/vpn/openvpn.conf
+# 如果WG_CONF不存在，通过环境变量创建
+if [[ ! -f $WG_CONF ]]; then
+    cat <<EOF > /vpn/wireguard.conf
+[Interface]
+PrivateKey = $WG_PRIVATE_KEY
+Address = $WG_ADDRESS_KEY
+DNS = $WG_ADDRESS_DNS
+
+EOF
+    if [[ -n $WG_ADDRESS_MTU ]]; then
+        echo "MTU = $WG_ADDRESS_MTU" >> /vpn/wireguard.conf
+    fi
+    cat <<EOF >> /vpn/wireguard.conf
+
+[Peer]
+PublicKey = $WG_PEER_PUBLIC_KEY
+AllowedIPs = $WG_PEER_ALLOWED_IPS
+Endpoint = $WG_PEER_ENDPOINT
+
+EOF
+    if [[ -n $WG_PEER_KEEPALIVE ]]; then
+        echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> /vpn/wireguard.conf
+    fi
+    WG_CONF=/vpn/wireguard.conf
 fi
-# OpenVPN configuration file.
-if [[ ! -f $OPVPN_CONF ]]; then
-    echo "openvpn conf file not found: $OPVPN_CONF" >&2
-    exit 1
-fi
+
+ln -sf "$WG_CONF" /etc/wireguard/wg0.conf
 
 # if file is prefix http, download it.
 if [[ $DANTE_CONF == http* ]]; then
-    echo "downloading dante conf file: $DANTE_CONF" >&2
+    echo "downloading dante conf file: $DANTE_CONF"
     curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
     DANTE_CONF=/vpn/sockd.conf
 fi
@@ -44,36 +57,27 @@ if [[ ! -f $DANTE_CONF ]]; then
     DANTE_CONF=/vpn/sockd.default.conf
 fi
 
-echo "using openvpn conf file: $OPVPN_CONF"
-echo "using openvpn auth file: $OPVPN_AUTH"
-echo "using dante   conf file: $DANTE_CONF"
+echo "using wireg conf file: $WG_CONF"
+echo "using dante conf file: $DANTE_CONF"
 
-mkdir /vpn/log
-
-# 处理ALLOWS_IPS
-if [[ -n "$ALLOWS_IPS" ]]; then
-    echo "using openvpn allows ips: $ALLOWS_IPS"
-    echo "$ALLOWS_IPS" | tr ',' '\n' | while read -r line; do
-        echo "route $line net_gateway" >> "$OPVPN_CONF"
-    done
+wg-quick up wg0
+# 如果没有/sys/class/net/wg0 文件启动失败，退出
+if [[ ! -e /sys/class/net/wg0 ]]; then
+    echo "wg0 not found, wireguard start failed."
+    exit 1
 fi
+# 显示连接状况
+wg show
+echo ""
+echo "wg0 has been install"
 
-# OpenVPN Running.
-openvpn --config "$OPVPN_CONF" "--auth-user-pass" "$OPVPN_AUTH" &
-# OpenVPN PID.
-openvpn_pid=$!
 
 trap cleanup TERM
 
-# Dante Running. -D: run as daemon
-# sockd -f "$DANTE_CONF" -D
-# 延迟10s启动dante代理(因为代理出口使用tun0，需要等待openvpn启动完成)
+# 启动dante-socks5代理
 if [[ "$PROXY_SOCK" == "on" ]]; then
-    sleep 10
     sockd -f "$DANTE_CONF" -D
 fi
-
-# wait $openvpn_pid
 
 #=========================================================
 # 成功启动后执行的脚本
@@ -83,18 +87,23 @@ fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
     if [[ -n "$TESTIP_URI" ]]; then
-        sleep 10 # 等待VPN处理完成，测试一下IP地址
-        echo "public ip: $(curl -ksSL $TESTIP_URI)" >&2
+        sleep 1
+        echo "public ip: $(curl -ksSL $TESTIP_URI)"
     fi
-    wait $openvpn_pid
+    # monitor wg-quick down wg0
+    while [ -e /sys/class/net/wg0 ]; do
+        sleep 5 # 检查wg0是否卸载
+    done
 else
     while true; do
-        sleep 30
         xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
         if [[ $xbody == *=200 ]]; then
-            echo "health check success: $xbody" >&2
+            echo "health check success: $xbody"
         else
-            echo "health check failed:  $xbody" >&2
+            echo "health check failed:  $xbody"
         fi
+        sleep 30
     done
+    # wg-quick down wg0
 fi
+echo "wg0 has been removed"

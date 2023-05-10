@@ -10,6 +10,6 @@ dante是一个SOCKS服务器，支持版本4和版本5，可以用来做代理�
 
 ## 变量
 
-OPVPN_AUTH:  openvpn 账号文件
-OPVPN_CONF:  openvpn 配置文件
+WGVPN_AUTH:  wireguard 私钥
+WGVPN_CONF:  wireguard 配置文件
 DANTE_CONF:  dante 配置文件

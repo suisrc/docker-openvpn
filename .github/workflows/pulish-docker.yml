@@ -2,11 +2,11 @@ name: publish-docker
 
 on:
   push:
-    branches: [ master ]
+    branches: [ wireguard ]
 
 env:
-  DOCKER_IMAGE_NAME: suisrc/openvpn
-  DOCKER_VERSION: '0.0.2'
+  DOCKER_IMAGE_NAME: suisrc/wireguard
+  DOCKER_VERSION: '0.0.1'
 
   GITHUB_REGISTRY: ghcr.io
   QUAY_REGISTRY: quay.io
