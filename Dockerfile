@@ -1,4 +1,4 @@
-FROM alpine:3.17
+FROM alpine:3.18
 
 RUN apk add --no-cache curl bash wireguard-tools dante-server
 ADD ["entry.sh", "wireguard.demo.conf", "sockd.default.conf", "/vpn/"]
