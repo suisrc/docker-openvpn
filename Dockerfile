@@ -14,6 +14,7 @@ ENV SOCKS5="off" \
     OPVPN_CONF= \
     OPSKIP_IPS= \
     DANTE_CONF= \
+    CONF_SHELL= \
     SUCC_SHELL= \
     EXIT_SHELL= \
     HEALTH_URI= \
