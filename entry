@@ -14,6 +14,12 @@ cleanup() {
     exit 0
 }
 
+# 执行配置脚本，在启动前执行
+if [[ -n $CONF_SHELL ]]; then
+    echo "exec conf shell: $CONF_SHELL"
+    bash -c "$CONF_SHELL"
+fi
+
 # OpenVPN OPVPN_AUTH include ":", is user:pass, wirte to file
 if [[ $OPVPN_AUTH == *:* ]]; then
     echo "$OPVPN_AUTH" | tr ':' '\n' > /vpn/auth.txt
@@ -73,12 +79,6 @@ echo "using openvpn conf file: $OPVPN_CONF"
 echo "using openvpn auth file: $OPVPN_AUTH"
 
 mkdir /vpn/log
-
-# 配置检查脚本，在启动前执行
-if [[ -n $CONF_SHELL ]]; then
-    echo "exec conf shell: $CONF_SHELL"
-    bash -c "$CONF_SHELL"
-fi
 
 # OpenVPN Running.
 openvpn --config "$OPVPN_CONF" "--auth-user-pass" "$OPVPN_AUTH" &
