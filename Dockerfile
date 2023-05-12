@@ -1,7 +1,9 @@
-FROM alpine:3.17
+FROM alpine:3.18
 
 RUN apk add --no-cache curl bash openvpn dante-server
-ADD ["entry.sh", "openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
+ADD ["openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
+
+WORKDIR /vpn
 
 # 监控检查在entry.sh中执行
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
@@ -16,4 +18,6 @@ ENV SOCKS5="off" \
     EXIT_SHELL= \
     HEALTH_URI= \
     TESTIP_URI="https://ipinfo.io"
-ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
+
+ADD [ "entry", "p2p", "/usr/bin/" ]
+CMD ["entry"]
