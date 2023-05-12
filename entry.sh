@@ -5,7 +5,12 @@ set -o nounset
 set -o pipefail
 
 cleanup() {
+    echo "cleaning up..."
     kill TERM "$openvpn_pid"
+    if [[ -n "$EXIT_SHELL" ]]; then
+      echo "exec exit shell: $EXIT_SHELL"
+      bash -c "$EXIT_SHELL"
+    fi
     exit 0
 }
 
@@ -16,25 +21,25 @@ if [[ $OPVPN_AUTH == *:* ]]; then
 fi
 # OpenVPN auth file.
 if [[ ! -f $OPVPN_AUTH ]]; then
-    echo "openvpn auth file not found: $OPVPN_AUTH" >&2
+    echo "openvpn auth file not found: $OPVPN_AUTH"
     exit 1
 fi
 
 # if file is prefix http, download it.
 if [[ $OPVPN_CONF == http* ]]; then
-    echo "downloading openvpn conf file: $OPVPN_CONF" >&2
+    echo "downloading openvpn conf file: $OPVPN_CONF"
     curl -ksSL "$OPVPN_CONF" -o /vpn/openvpn.conf
     OPVPN_CONF=/vpn/openvpn.conf
 fi
 # OpenVPN configuration file.
 if [[ ! -f $OPVPN_CONF ]]; then
-    echo "openvpn conf file not found: $OPVPN_CONF" >&2
+    echo "openvpn conf file not found: $OPVPN_CONF"
     exit 1
 fi
 
 # if file is prefix http, download it.
 if [[ $DANTE_CONF == http* ]]; then
-    echo "downloading dante conf file: $DANTE_CONF" >&2
+    echo "downloading dante conf file: $DANTE_CONF"
     curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
     DANTE_CONF=/vpn/sockd.conf
 fi
@@ -89,13 +94,14 @@ fi
 #=========================================================
 # 成功启动后执行的脚本
 if [[ -n "$SUCC_SHELL" ]]; then
+  echo "exec succ shell: $SUCC_SHELL"
   bash -c "$SUCC_SHELL"
 fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -z "$HEALTH_URI" ]]; then
     if [[ -n "$TESTIP_URI" ]]; then
         sleep 5 # 等待VPN处理完成，测试一下IP地址
-        echo "public ip: $(curl -ksSL $TESTIP_URI)" >&2
+        echo "public ip: $(curl -ksSL $TESTIP_URI)"
     fi
     wait $openvpn_pid
 else
@@ -103,9 +109,9 @@ else
     while true; do
         xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
         if [[ $xbody == *=200 ]]; then
-            echo "health check success: $xbody" >&2
+            echo "health check success: $xbody"
         else
-            echo "health check failed:  $xbody" >&2
+            echo "health check failed:  $xbody"
         fi
         sleep 30
     done

@@ -13,6 +13,7 @@ ENV SOCKS5="off" \
     OPSKIP_IPS= \
     DANTE_CONF= \
     SUCC_SHELL= \
+    EXIT_SHELL= \
     HEALTH_URI= \
     TESTIP_URI="https://ipinfo.io"
 ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
