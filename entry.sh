@@ -7,6 +7,10 @@ set -o pipefail
 cleanup() {
     echo "cleaning wg0..."
     wg-quick down wg0
+    if [[ -n "$EXIT_SHELL" ]]; then
+      echo "exec exit shell: $EXIT_SHELL"
+      bash -c "$EXIT_SHELL"
+    fi
     exit 0
 }
 
@@ -82,6 +86,7 @@ fi
 #=========================================================
 # 成功启动后执行的脚本
 if [[ -n "$SUCC_SHELL" ]]; then
+  echo "exec succ shell: $SUCC_SHELL"
   bash -c "$SUCC_SHELL"
 fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束

@@ -25,6 +25,7 @@ ENV SOCKS5="off" \
     WG_CONF= \
     DANTE_CONF= \
     SUCC_SHELL= \
+    EXIT_SHELL= \
     HEALTH_URI= \
     TESTIP_URI="https://ipinfo.io"
 
