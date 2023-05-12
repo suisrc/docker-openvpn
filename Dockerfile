@@ -6,7 +6,9 @@ RUN apk add --no-cache curl bash wireguard-tools dante-server
 # [[ $proto == -4 ]] && cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1
 RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.conf.all.src_valid_mark | awk '{print \$3}') != 1 ]]/g" /usr/bin/wg-quick
 
-ADD ["entry.sh", "wireguard.demo.conf", "sockd.default.conf", "/vpn/"]
+ADD ["wireguard.demo.conf", "sockd.default.conf", "/vpn/"]
+
+WORKDIR /vpn
 
 # 监控检查在entry.sh中执行
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
@@ -29,4 +31,5 @@ ENV SOCKS5="off" \
     HEALTH_URI= \
     TESTIP_URI="https://ipinfo.io"
 
-ENTRYPOINT [ "bash", "/vpn/entry.sh" ]
+ADD [ "entry", "p2p", "/usr/bin/" ]
+CMD ["entry"]
