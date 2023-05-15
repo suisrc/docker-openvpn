@@ -17,8 +17,8 @@ ENV SOCKS5="off" \
     CONF_SHELL= \
     SUCC_SHELL= \
     EXIT_SHELL= \
-    HEALTH_URI= \
-    TESTIP_URI="https://ipinfo.io"
+    HEALTH_SHELL= \
+    TESTIP_URI=
 
-ADD [ "entry", "p2p", "/usr/bin/" ]
+ADD [ "entry", "p2p", "dohip", "myip", "/usr/bin/" ]
 CMD ["entry"]

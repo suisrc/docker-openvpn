@@ -103,22 +103,15 @@ if [[ -n "$SUCC_SHELL" ]]; then
   echo "exec succ shell: $SUCC_SHELL"
   bash -c "$SUCC_SHELL"
 fi
+if [[ -n "$TESTIP_URI" ]]; then
+    sleep 5 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
+fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
-if [[ -z "$HEALTH_URI" ]]; then
-    if [[ -n "$TESTIP_URI" ]]; then
-        sleep 5 # 等待VPN处理完成，测试一下IP地址
-        echo "public ip: $(curl -ksSL $TESTIP_URI)"
-    fi
-    wait $openvpn_pid
-else
-    sleep 5 # 等待VPN处理完成，测试一下IP地址
-    while true; do
-        xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
-        if [[ $xbody == *=200 ]]; then
-            echo "health check success: $xbody"
-        else
-            echo "health check failed:  $xbody"
-        fi
-        sleep 30
+if [[ -n "$HEALTH_SHELL" ]]; then
+    # 如果$openvpn_pid进程存在，就执行健康检查脚本
+    while ! kill -0 "$openvpn_pid" >/dev/null; do
+        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
+else
+    wait $openvpn_pid
 fi
