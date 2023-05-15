@@ -16,7 +16,7 @@ WORKDIR /vpn
 
 ENV SOCKS5="off" \ 
     WG_PRIVATE_KEY= \
-    WG_ADDRESS_KEY= \
+    WG_ADDRESS_URL= \
     WG_PEER_ENDPOINT= \
     WG_PEER_PUBLIC_KEY= \
     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\
@@ -25,11 +25,17 @@ ENV SOCKS5="off" \
     WG_PEER_SKIPPED_IPS= \
     WG_PEER_KEEPALIVE= \
     WG_CONF= \
+    WG_CONF_SHELL= \
     DANTE_CONF= \
     SUCC_SHELL= \
     EXIT_SHELL= \
+    HEALTH_SHELL= \
     HEALTH_URI= \
-    TESTIP_URI="https://ipinfo.io"
+    TESTIP_URI=
 
-ADD [ "entry", "p2p", "/usr/bin/" ]
+# TESTIP_URI，获取本机IP的地址，可以使用以下地址
+# https://cloudflare.com/cdn-cgi/trace
+# https://ipinfo.io
+
+ADD [ "entry", "p2p", "dohip", "myip", "wg-reload" "/usr/bin/" ]
 CMD ["entry"]

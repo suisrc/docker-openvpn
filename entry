@@ -26,7 +26,7 @@ if [[ ! -f $WG_CONF ]]; then
     cat <<EOF > /vpn/wireguard.conf
 [Interface]
 PrivateKey = $WG_PRIVATE_KEY
-Address = $WG_ADDRESS_KEY
+Address = $WG_ADDRESS_URL
 DNS = $WG_ADDRESS_DNS
 
 EOF
@@ -61,6 +61,10 @@ if [[ ! -f $DANTE_CONF ]]; then
     DANTE_CONF=/vpn/sockd.default.conf
 fi
 
+if [[ -n "$WG_CONF_SHELL" ]]; then
+    echo "exec wireguard conf shell: $WG_CONF_SHELL"
+    bash -c "$WG_CONF_SHELL"
+fi
 echo "using wireguard conf file: $WG_CONF"
 
 wg-quick up wg0
@@ -70,7 +74,7 @@ if [[ ! -e /sys/class/net/wg0 ]]; then
     exit 1
 fi
 # 显示连接状况
-wg show
+sleep 1 && wg show
 echo ""
 echo "wg0 has been install"
 
@@ -89,26 +93,20 @@ if [[ -n "$SUCC_SHELL" ]]; then
   echo "exec succ shell: $SUCC_SHELL"
   bash -c "$SUCC_SHELL"
 fi
+if [[ -n "$TESTIP_URI" ]]; then
+    sleep 1 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
+fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
-if [[ -z "$HEALTH_URI" ]]; then
-    if [[ -n "$TESTIP_URI" ]]; then
-        sleep 1
-        echo "public ip: $(curl -ksSL $TESTIP_URI)"
-    fi
-    # monitor wg-quick down wg0
-    while [ -e /sys/class/net/wg0 ]; do
-        sleep 5 # 检查wg0是否卸载
+if [[ -n "$HEALTH_SHELL" ]]; then
+    while [[ -e /sys/class/net/wg0 ]]; do
+        # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
+        # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
+        sleep 5 && bash -c "$HEALTH_SHELL" || true  # 忽略错误
     done
 else
-    while true; do
-        xbody=$(curl -ksSL -w "=%{http_code}" "$HEALTH_URI")
-        if [[ $xbody == *=200 ]]; then
-            echo "health check success: $xbody"
-        else
-            echo "health check failed:  $xbody"
-        fi
-        sleep 30
+    # monitor wg-quick down wg0
+    while [[ -e /sys/class/net/wg0 ]]; do
+        sleep 5 # 检查wg0是否卸载
     done
-    # wg-quick down wg0
 fi
 echo "wg0 has been removed"
