@@ -1,0 +1,41 @@
+#!/bin/bash
+
+## ./wg-reload github.com
+## 对wireguard的配置文件进行reload, 需要参数为域名
+## 主要解决在DNS污染的情况下，wireguard的Endpoint的IP地址变化的问题
+
+set -o errexit
+
+bin_dir=`dirname $0`
+# 使用 wipr 查询新的 dns
+new_ip=$($bin_dir/dohip $1)
+
+# 如果没有找到新的ip，退出
+if [[ -z $new_ip ]]; then
+    echo "new ip not found."
+    exit 1
+fi
+# 如果没有找到 /etc/wireguard/wg0.conf，退出
+if [[ ! -e /etc/wireguard/wg0.conf ]]; then
+    echo "wg0 not found."
+    exit 1
+fi
+
+# 替换 /etc/wireguard/wg0.conf 中的 Endpoint
+old_ip=$(cat /etc/wireguard/wg0.conf | grep Endpoint | cut -d= -f2 | cut -d: -f1)
+# 检查是否需要替换
+if [[ $old_ip == $new_ip ]]; then
+    echo "ip not changed."
+    exit 0
+fi
+
+# 只换IP，不换端口
+echo "ip: $new_ip -> $old_ip"
+sed -i "s/Endpoint = [^:]*/Endpoint = $new_ip/" /etc/wireguard/wg0.conf
+
+# 重新加载wireguard配置
+# wg-quick reload wg0
+wg syncconf wg0 <(wg-quick strip wg0)
+
+# 获取wg运行结果
+sleep 1 && wg show
