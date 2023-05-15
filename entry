@@ -101,7 +101,7 @@ if [[ -n "$HEALTH_SHELL" ]]; then
     while [[ -e /sys/class/net/wg0 ]]; do
         # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
         # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
-        sleep 5 && bash -c "$HEALTH_SHELL" || true  # 忽略错误
+        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     # monitor wg-quick down wg0
