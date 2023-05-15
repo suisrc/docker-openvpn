@@ -37,5 +37,5 @@ ENV SOCKS5="off" \
 # https://cloudflare.com/cdn-cgi/trace
 # https://ipinfo.io
 
-ADD [ "entry", "p2p", "dohip", "myip", "wg-reload" "/usr/bin/" ]
+ADD [ "entry", "p2p", "dohip", "myip", "wg-reload", "/usr/bin/" ]
 CMD ["entry"]
