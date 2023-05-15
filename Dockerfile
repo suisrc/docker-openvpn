@@ -1,6 +1,6 @@
 FROM alpine:3.18
 
-RUN apk add --no-cache curl bash wireguard-tools dante-server
+RUN apk add --no-cache curl bash jq wireguard-tools dante-server
 
 # 修正一下wg-quick的问题，如果注解或者容器配置了 src_valid_mark 不需要必须特权模式下运行
 # [[ $proto == -4 ]] && cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1
