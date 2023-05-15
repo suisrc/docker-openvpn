@@ -1,6 +1,6 @@
 FROM alpine:3.18
 
-RUN apk add --no-cache curl bash openvpn dante-server
+RUN apk add --no-cache curl bash jq openvpn dante-server
 ADD ["openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
 
 WORKDIR /vpn
