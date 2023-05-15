@@ -26,7 +26,7 @@ if [[ ! -f $WG_CONF ]]; then
     cat <<EOF > /vpn/wireguard.conf
 [Interface]
 PrivateKey = $WG_PRIVATE_KEY
-Address = $WG_ADDRESS_URL
+Address = $WG_ADDRESS_KEY
 DNS = $WG_ADDRESS_DNS
 
 EOF

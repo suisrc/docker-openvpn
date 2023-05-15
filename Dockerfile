@@ -16,7 +16,7 @@ WORKDIR /vpn
 
 ENV SOCKS5="off" \ 
     WG_PRIVATE_KEY= \
-    WG_ADDRESS_URL= \
+    WG_ADDRESS_KEY= \
     WG_PEER_ENDPOINT= \
     WG_PEER_PUBLIC_KEY= \
     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\

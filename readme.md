@@ -12,7 +12,7 @@ dante是一个SOCKS服务器，支持版本4和版本5，可以用来做代理�
 
 ENV SOCKS5="off" \    # 是否启用socks5代理  
     WG_PRIVATE_KEY= \ # wireguard私钥  
-    WG_ADDRESS_URL= \ # wireguard地址  
+    WG_ADDRESS_KEY= \ # wireguard地址  
     WG_PEER_ENDPOINT= \    # wireguard对端地址  
     WG_PEER_PUBLIC_KEY= \  # wireguard对端公钥  
     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\ # wireguard地址dns  
