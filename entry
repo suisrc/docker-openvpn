@@ -63,10 +63,10 @@ if [[ -n "$OPSKIP_IPS" ]]; then
             # ip/mask => ip mask
             ip=${line%/*}
             mk=${line#*/}
-            mk0=$((1 << (32 - $mk) - 1))
+            mk0=$(( (1 << (32 - $mk)) - 1 ))
             mk1=$((mk0 >> 24 & 0xff ^ 0xff))
             mk2=$((mk0 >> 16 & 0xff ^ 0xff))
-            mk3=$((mk0 >> 8 & 0xff ^ 0xff))
+            mk3=$((mk0 >> 8  & 0xff ^ 0xff))
             mk4=$((mk0 & 0xff ^ 0xff))
             line="$ip $mk1.$mk2.$mk3.$mk4"
         fi
@@ -104,13 +104,15 @@ if [[ -n "$SUCC_SHELL" ]]; then
   bash -c "$SUCC_SHELL"
 fi
 if [[ -n "$TESTIP_URI" ]]; then
-    sleep 5 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
+    sleep 5
+    echo "public ip: $(curl -ksSL $TESTIP_URI)"
 fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -n "$HEALTH_SHELL" ]]; then
     # 如果$openvpn_pid进程存在，就执行健康检查脚本
     while ! kill -0 "$openvpn_pid" >/dev/null; do
-        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5
+        bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     wait $openvpn_pid
