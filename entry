@@ -5,12 +5,19 @@ set -o nounset
 set -o pipefail
 
 cleanup() {
-    echo "cleaning wg0..."
-    wg-quick down wg0
+    if [[ -n "$WG_SKIPPED_IPS" ]]; then
+        IFS=',' read -ra skip_ips <<< "$WG_SKIPPED_IPS"
+        for skip_ip in "${skip_ips[@]}"; do
+            echo "[-] ip route del $skip_ip via $skip_gw"
+            ip route del "$skip_ip" via "$skip_gw"
+        done
+    fi
     if [[ -n "$EXIT_SHELL" ]]; then
       echo "exec exit shell: $EXIT_SHELL"
       bash -c "$EXIT_SHELL"
     fi
+    echo "cleaning wg0..."
+    wg-quick down wg0
     exit 0
 }
 
@@ -67,6 +74,17 @@ if [[ -n "$WG_CONF_SHELL" ]]; then
 fi
 echo "using wireguard conf file: $WG_CONF"
 
+# 配置不进行代理的IP段
+if [[ -n "$WG_SKIPPED_IPS" ]]; then
+    echo "skipped ips: $WG_SKIPPED_IPS"
+    skip_gw=$(ip route show | grep via | awk '{print $3}')
+    IFS=',' read -ra skip_ips <<< "$WG_SKIPPED_IPS"
+    for skip_ip in "${skip_ips[@]}"; do
+        echo "[+] ip route add $skip_ip via $skip_gw"
+        ip route add "$skip_ip" via "$skip_gw"
+    done
+fi
+
 wg-quick up wg0
 # 如果没有/sys/class/net/wg0 文件启动失败，退出
 if [[ ! -e /sys/class/net/wg0 ]]; then
@@ -74,7 +92,8 @@ if [[ ! -e /sys/class/net/wg0 ]]; then
     exit 1
 fi
 # 显示连接状况
-sleep 1 && wg show
+sleep 1
+wg show
 echo ""
 echo "wg0 has been install"
 
@@ -94,14 +113,16 @@ if [[ -n "$SUCC_SHELL" ]]; then
   bash -c "$SUCC_SHELL"
 fi
 if [[ -n "$TESTIP_URI" ]]; then
-    sleep 1 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
+    sleep 3
+    echo "public ip: $(curl -ksSL $TESTIP_URI)"
 fi
 # 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
 if [[ -n "$HEALTH_SHELL" ]]; then
     while [[ -e /sys/class/net/wg0 ]]; do
         # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
         # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
-        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5
+        bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     # monitor wg-quick down wg0
