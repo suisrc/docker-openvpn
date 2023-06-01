@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 
 bin_home=`dirname $0`
 
@@ -7,7 +7,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
     # <remote-proto>, <remote-ip>, <remote-port>
     cp -f $bin_home/client.ovpn /vpn/openvpn.conf
     if [[ -n $VPN_REGION ]]; then
-        IFS=' ' read -r endpoint secret location <<< "$(ash $bin_home/tool $VPN_REGION)"
+        IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"
         IFS='/' read -r port proto <<< "${VPN_PORT:-1194/UDP}"
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, proto: $proto, location: $location"
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
@@ -16,7 +16,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
 elif [[ $VPN_TYPE == wireguard ]]; then
     echo "starting $VPN_TYPE..."
     if [[ -n $VPN_REGION ]]; then
-        IFS=' ' read -r endpoint secret location <<< "$(ash $bin_home/tool $VPN_REGION)"
+        IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"
         port=${VPN_PORT:-51820} # only udp
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, location: $location"
         if [[ -z "$WG_ADDRESS_KEY" ]]; then export WG_ADDRESS_KEY="10.14.0.2/16"; fi
@@ -31,9 +31,9 @@ sleep 5 # 防止循环重启， 无法查看日志
 
 
 # test
-# VPN_TYPE=openvpn VPN_REGION=la-vte ash ./providers/surfshark/entry 
-# VPN_TYPE=openvpn VPN_REGION="la-vte ip" ash ./providers/surfshark/entry 
+# VPN_TYPE=openvpn VPN_REGION=la-vte bash ./providers/surfshark/entry 
+# VPN_TYPE=openvpn VPN_REGION="la-vte ip" bash ./providers/surfshark/entry 
 #
-# VPN_TYPE=wireguard VPN_REGION=la-vte ash ./providers/surfshark/entry 
-# VPN_TYPE=wireguard VPN_REGION="la-vte ip" ash ./providers/surfshark/entry 
+# VPN_TYPE=wireguard VPN_REGION=la-vte bash ./providers/surfshark/entry 
+# VPN_TYPE=wireguard VPN_REGION="la-vte ip" bash ./providers/surfshark/entry 
 #

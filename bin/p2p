@@ -1,8 +1,8 @@
-#!/bin/ash
+#!/bin/bash
 
 ## 在命令行中不能使用">"特殊符号，使用"-"代替
-## ash p2p.sh add 51280UDP-127.0.0.1:8080
-## ash p2p.sh del 51280UDP-127.0.0.1:8080
+## bash p2p.sh add 51280UDP-127.0.0.1:8080
+## bash p2p.sh del 51280UDP-127.0.0.1:8080
 
 set -e
 

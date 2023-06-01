@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 
 # ENV SOCKS5="off" \ 
 #     VPN_KEY=a01 \
@@ -32,7 +32,7 @@ cleanup() {
 # 执行配置脚本，在启动前执行
 if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create openvpn conf by shell: $WG_CONF_SHELL"
-    ash -c "$WG_CONF_SHELL"
+    bash -c "$WG_CONF_SHELL"
 fi
 
 # if file is prefix http, download it.
@@ -91,7 +91,7 @@ ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
 
 if [[ -n "$WG_CONF_SHEND" ]]; then
     echo "fix wireguard conf shell: $WG_CONF_SHEND"
-    ash -c "$WG_CONF_SHEND"
+    bash -c "$WG_CONF_SHEND"
 fi
 
 # 处理 SKIPPED_IPS
@@ -128,7 +128,7 @@ fi
 # 成功启动后执行的脚本
 if [[ -n "$SUCC_SHELL" ]]; then
   echo "succ shell: $SUCC_SHELL"
-  ash -c "$SUCC_SHELL"
+  bash -c "$SUCC_SHELL"
 fi
 if [[ -n "$TESTIP_URI" ]]; then
     sleep 3 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
@@ -139,7 +139,7 @@ if [[ -n "$HEALTH_SHELL" ]]; then
     # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
     # 如果/sys/class/net/wg0不存在，说明wireguard已经退出
     while [[ -e /sys/class/net/wg0 ]]; do
-        sleep 5 && ash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     # monitor wg-quick down wg0， 检查wg0是否卸载

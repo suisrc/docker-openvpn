@@ -1,7 +1,7 @@
 FROM alpine:3.18
 
 RUN apk add --no-cache \
-    curl jq \
+    curl jq bash \
     openvpn \
     wireguard-tools \
     dante-server \

@@ -1,6 +1,6 @@
-#!/bin/ash
+#!/bin/bash
 
-# ash surfshark/tool la-vte
+# bash surfshark/tool la-vte
 
 host=$1
 if [[ $host != *.prod.surfshark.com ]]; then
