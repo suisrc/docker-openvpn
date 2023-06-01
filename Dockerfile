@@ -3,7 +3,7 @@ FROM alpine:3.18
 RUN apk add --no-cache \
     curl jq \
     openvpn 
-    wireguard-tools 
+    wireguard-tools \
     dante-server \
     && ln -sf /bin/busybox /bin/bash
 
