@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+# ENV SOCKS5="off" \ 
+#     VPN_KEY=a01 \
+#     VPN_REGION= \
+#     SKIPPED_IPS= \
+#     WG_PRIVATE_KEY= \
+#     WG_ADDRESS_KEY= \
+#     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\
+#     WG_ADDRESS_MTU= \
+#     WG_PEER_ENDPOINT= \
+#     WG_PEER_PUBLIC_KEY= \
+#     WG_PEER_ALLOWED_IPS="0.0.0.0/0"\
+#     WG_PEER_KEEPALIVE= \
+#     WG_CONF_PATH= \
+#     WG_CONF_SHELL= \
+#     SUCC_SHELL= \
+#     EXIT_SHELL= \
+#     HEALTH_SHELL= \
+#     HEALTH_URI= \
+#     TESTIP_URI=
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+cleanup() {
+    vpn-stop
+}
+
+# if file is prefix http, download it.
+if [[ $WG_CONF == http* ]]; then
+    echo "downloading wireguard conf file: $WG_CONF"
+    curl -ksSL "$WG_CONF" -o /vpn/wireguard.conf
+    WG_CONF=/vpn/wireguard.conf
+fi
+
+# 如果WG_CONF不存在，通过环境变量创建
+if [[ ! -f $WG_CONF ]]; then
+    cat <<EOF > /vpn/wireguard.conf
+[Interface]
+PrivateKey = $WG_PRIVATE_KEY
+Address = $WG_ADDRESS_KEY
+DNS = $WG_ADDRESS_DNS
+
+EOF
+    if [[ -n $WG_ADDRESS_MTU ]]; then
+        echo "MTU = $WG_ADDRESS_MTU" >> /vpn/wireguard.conf
+    fi
+    cat <<EOF >> /vpn/wireguard.conf
+
+[Peer]
+PublicKey = $WG_PEER_PUBLIC_KEY
+AllowedIPs = $WG_PEER_ALLOWED_IPS
+Endpoint = $WG_PEER_ENDPOINT
+
+EOF
+    if [[ -n $WG_PEER_KEEPALIVE ]]; then
+        echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> /vpn/wireguard.conf
+    fi
+    WG_CONF=/vpn/wireguard.conf
+fi
+
+ln -sf "$WG_CONF" /etc/wireguard/wg0.conf
+
+# if file is prefix http, download it.
+if [[ $DANTE_CONF == http* ]]; then
+    echo "downloading dante conf file: $DANTE_CONF"
+    curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
+    DANTE_CONF=/vpn/sockd.conf
+fi
+# Dante configuration file.
+if [[ ! -f $DANTE_CONF ]]; then
+    # default dante conf file.
+    DANTE_CONF=/vpn/sockd.default.conf
+fi
+
+if [[ -n "$WG_CONF_SHELL" ]]; then
+    echo "exec wireguard conf shell: $WG_CONF_SHELL"
+    bash -c "$WG_CONF_SHELL"
+fi
+echo "using wireguard conf file: $WG_CONF"
+
+# 配置不进行代理的IP段
+if [[ -n "$WG_SKIPPED_IPS" ]]; then
+    echo "skipped ips: $WG_SKIPPED_IPS"
+    skip_gw=$(ip route show | grep via | awk '{print $3}')
+    IFS=',' read -ra skip_ips <<< "$WG_SKIPPED_IPS"
+    for skip_ip in "${skip_ips[@]}"; do
+        echo "[+] ip route add $skip_ip via $skip_gw"
+        ip route add "$skip_ip" via "$skip_gw"
+    done
+fi
+
+wg-quick up wg0
+# 如果没有/sys/class/net/wg0 文件启动失败，退出
+if [[ ! -e /sys/class/net/wg0 ]]; then
+    echo "wg0 not found, wireguard start failed."
+    exit 1
+fi
+# 显示连接状况
+sleep 1
+wg show
+echo ""
+echo "wg0 has been install"
+
+
+trap cleanup TERM
+
+# 启动dante-socks5代理
+if [[ "$SOCKS5" == "on" ]]; then
+    echo "using dante conf file: $DANTE_CONF"
+    sockd -f "$DANTE_CONF" -D
+fi
+
+#=========================================================
+# 成功启动后执行的脚本
+if [[ -n "$SUCC_SHELL" ]]; then
+  echo "exec succ shell: $SUCC_SHELL"
+  bash -c "$SUCC_SHELL"
+fi
+if [[ -n "$TESTIP_URI" ]]; then
+    sleep 3
+    echo "public ip: $(curl -ksSL $TESTIP_URI)"
+fi
+# 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
+if [[ -n "$HEALTH_SHELL" ]]; then
+    while [[ -e /sys/class/net/wg0 ]]; do
+        # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
+        # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
+        sleep 5
+        bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+    done
+else
+    # monitor wg-quick down wg0
+    while [[ -e /sys/class/net/wg0 ]]; do
+        sleep 5 # 检查wg0是否卸载
+    done
+fi
+echo "wg0 has been removed"

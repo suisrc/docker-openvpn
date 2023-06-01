@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 
+
+# ENV SOCKS5="off" \ 
+#     VPN_KEY=a01 \
+#     VPN_REGION= \
+#     SKIPPED_IPS= \
+#     OV_USER_PASS= \
+#     OV_CONF_PATH= \
+#     OV_CONF_SHELL= \
+#     SUCC_SHELL= \
+#     EXIT_SHELL= \
+#     HEALTH_SHELL= \
+#     HEALTH_URI= \
+#     TESTIP_URI=
+
 set -o errexit
 set -o nounset
 set -o pipefail
 
 cleanup() {
-    echo "cleaning up..."
-    kill TERM "$openvpn_pid"
-    if [[ -n "$EXIT_SHELL" ]]; then
-      echo "exec exit shell: $EXIT_SHELL"
-      bash -c "$EXIT_SHELL"
-    fi
-    exit 0
+    vpn-stop
 }
 
 # 执行配置脚本，在启动前执行
@@ -43,17 +51,6 @@ if [[ ! -f $OPVPN_CONF ]]; then
     exit 1
 fi
 
-# if file is prefix http, download it.
-if [[ $DANTE_CONF == http* ]]; then
-    echo "downloading dante conf file: $DANTE_CONF"
-    curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
-    DANTE_CONF=/vpn/sockd.conf
-fi
-# Dante configuration file.
-if [[ ! -f $DANTE_CONF ]]; then
-    # default dante conf file.
-    DANTE_CONF=/vpn/sockd.default.conf
-fi
 
 # 处理OPSKIP_IPS
 if [[ -n "$OPSKIP_IPS" ]]; then

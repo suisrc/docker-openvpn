@@ -1,20 +1,36 @@
 # 说明
 
-openvpn + dante
+openvpn + wireguard + dante
 
 ## openvpn
 openvpn是一个开源的VPN软件，可以用来创建点对点或者站点到站点的连接，它支持自定义安全协议以及混合模式的虚拟专用网络。
+
+## wireguard
+wireguard是一个开源的VPN软件，它是一个内核模块，可以用来创建点对点或者站点到站点的连接，它支持自定义安全协议以及混合模式的虚拟专用网络。
 
 ## dante
 dante是一个SOCKS服务器，支持版本4和版本5，可以用来做代理服务器。
 
 ## 变量
 
-ENV SOCKS5="off" \ # 内部代理  
-    OPVPN_AUTH= \  # 认证信息, user:pass  
-    OPVPN_CONF= \  # 配置文件, file or uri
-    OPSKIP_IPS= \  # 跳过的IP, 内部局域网IP
-    DANTE_CONF= \  # socks5配置文件, file or uri
-    SUCC_SHELL= \  # 启动成功后执行的命令
-    HEALTH_URI= \  # 健康检查接口，不推荐使用
-    TESTIP_URI="https://ipinfo.io"
+ENV SOCKS5="off" \ # 是否启用socks5代理  
+    DANTE_CONF= \  # dante配置文件路径  
+    SKIPPED_IPS= \  # 不走代理的IP列表
+    OV_USER_PASS= \  # openvpn用户名密码  
+    OV_CONF_PATH= \  # openvpn配置文件路径  
+    OV_CONF_SHELL= \  # openvpn配置文件生成脚本， 修正配置文件  
+    WG_PRIVATE_KEY= \  # wireguard私钥  
+    WG_ADDRESS_KEY= \  # wireguard地址  
+    WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\  # wireguard DNS  
+    WG_ADDRESS_MTU= \  # wireguard MTU  
+    WG_PEER_ENDPOINT= \  # wireguard 对端地址  
+    WG_PEER_PUBLIC_KEY= \  # wireguard 对端公钥  
+    WG_PEER_ALLOWED_IPS="0.0.0.0/0"\  # wireguard 对端允许的IP  
+    WG_PEER_KEEPALIVE= \  # wireguard 对端心跳  
+    WG_CONF_PATH= \  # wireguard 配置文件路径  
+    WG_CONF_SHELL= \  # wireguard 配置文件生成脚本， 修正配置文件  
+    SUCC_SHELL= \  # 成功后执行的脚本  
+    EXIT_SHELL= \  # 退出后执行的脚本  
+    HEALTH_SHELL= \  # 健康检查脚本  
+    HEALTH_URI= \  # 健康检查地址  
+    TESTIP_URI=  # 测试IP地址

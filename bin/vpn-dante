@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# ENV DANTE_CONF= \
+
+# if file is prefix http, download it.
+if [[ $DANTE_CONF == http* ]]; then
+    echo "downloading dante conf file: $DANTE_CONF"
+    curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
+    DANTE_CONF=/vpn/sockd.conf
+fi
+# Dante configuration file by parameter.
+if [[ ! -f $DANTE_CONF ]]; then
+    # default dante conf file.
+    DANTE_CONF=/vpn/$1.sockd.conf
+fi
+
+if [[ ! -f $DANTE_CONF ]]; then
+    echo "dante conf file not found: $DANTE_CONF"
+    exit 1
+fi
+echo "start dante by daemon, using dante conf file: $DANTE_CONF"
+sockd -f "$DANTE_CONF" -D
