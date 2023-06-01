@@ -8,7 +8,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
     cp -f $bin_home/client.ovpn /vpn/openvpn.conf
     if [[ -n $VPN_REGION ]]; then
         IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"
-        IFS='/' read -r port proto <<< "${VPN_PORT:-1194/UDP}"
+        IFS='/' read -r port proto <<< "${VPN_PORT:-1194/udp}"
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, proto: $proto, location: $location"
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
     fi

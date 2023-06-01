@@ -145,7 +145,7 @@ if [[ -n "$HEALTH_SHELL" ]]; then
     done
 else
     # monitor wg-quick down wg0， 检查wg0是否卸载
-    while [[ -e /sys/class/net/wg0 ]]; do sleep 5 done
+    while [[ -e /sys/class/net/wg0 ]]; do sleep 5; done
     # while true; do sleep 5 && echo `date`; done
 fi
 echo "exit wireguard"
