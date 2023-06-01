@@ -3,24 +3,24 @@
 # ENV VPN_TYPE=openvpn \
 
 if [[ "$VPN_TYPE" == "openvpn" ]]; then
-    echo "starting openvpn..."
+    echo "[vpn-entry] starting openvpn..."
     exec vpn-entry-ov # openvpn
     # echo "success" && exit 0
 elif [[ "$VPN_TYPE" == "wireguard" ]]; then
-    echo "starting wireguard..."
-    exec /vpn-entry-wg # wireguard
+    echo "[vpn-entry] starting wireguard..."
+    exec vpn-entry-wg # wireguard
     # echo "success" && exit 0
 elif [[ $VPN_TYPE == *-* ]]; then
     # [provider]-[openvpn|wireguard]
     provider=${VPN_TYPE%-*}
-    echo "provider: $provider"
+    echo "[vpn-entry] provider: $provider"
     if [ -d "/vpn/$provider" ]; then
         VPN_TYPE=${VPN_TYPE#*-} exec bash /vpn/$provider/entry
     fi
-    echo "provider: $provider not found"
+    echo "[vpn-entry] provider: $provider not found"
 fi
 
-echo "unknown vpn: $VPN_TYPE"
+echo "[vpn-entry] unknown vpn: $VPN_TYPE"
 sleep 5 # 防止循环重启， 无法查看日志
 
 # VPN_TYPE=surfshark-openvpn bash ./bin/vpn-entry
