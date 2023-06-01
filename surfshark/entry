@@ -3,7 +3,7 @@
 bin_home=`dirname $0`
 # bin_test="$bin_home/../bin/"
 
-if [[ $VPN_TYPE == *-openvpn ]]; then
+if [[ $VPN_TYPE == *openvpn ]]; then
     echo "starting $VPN_TYPE..."
     # <remote-proto>, <remote-ip>, <remote-port>
     cp -f $bin_home/client.ovpn /vpn/openvpn.conf
@@ -14,7 +14,7 @@ if [[ $VPN_TYPE == *-openvpn ]]; then
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
     fi
     VPN_TYPE=openvpn exec ${bin_test}vpn-entry # openvpn
-elif [[ $VPN_TYPE == *-wireguard ]]; then
+elif [[ $VPN_TYPE == *wireguard ]]; then
     echo "starting $VPN_TYPE..."
     if [[ -n $VPN_REGION ]]; then
         IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"

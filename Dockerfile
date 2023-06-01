@@ -1,7 +1,7 @@
 FROM alpine:3.18
 
 RUN apk add --no-cache \
-    curl jq \
+    curl jq bash \
     openvpn \
     wireguard-tools \
     dante-server \
@@ -13,7 +13,7 @@ RUN apk add --no-cache \
 RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.conf.all.src_valid_mark | awk '{print \$3}') != 1 ]]/g" /usr/bin/wg-quick
 
 ADD ["openvpn.*", "wireguard.*", "/vpn/"]
-ADD [ "bin/*", "/usr/bin/" ]
+ADD [ "bin/*", "/usr/local/bin/" ]
 
 # 供应商适配
 ADD ["surfshark", "/vpn/"]
