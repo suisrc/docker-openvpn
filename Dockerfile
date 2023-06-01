@@ -12,7 +12,7 @@ RUN apk add --no-cache \
 RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.conf.all.src_valid_mark | awk '{print \$3}') != 1 ]]/g" /usr/bin/wg-quick
 
 ADD [ "bin/*", "/usr/local/bin/" ]
-ADD ["openvpn.*", "wireguard.*", "providers/*", "/vpn/"]
+ADD ["openvpn.*", "wireguard.*", "providers/", "/vpn/"]
 
 ENV SOCKS5="off" \ 
     DANTE_CONF= \
