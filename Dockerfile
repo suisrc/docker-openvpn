@@ -15,7 +15,7 @@ ADD ["openvpn.*", "wireguard.*", "/vpn/"]
 ADD [ "bin/*", "/usr/local/bin/" ]
 
 # 供应商适配
-ADD ["surfshark", "/vpn/"]
+ADD "surfshark", "/vpn/surfshark"
 
 ENV SOCKS5="off" \ 
     DANTE_CONF= \
