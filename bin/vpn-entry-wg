@@ -88,7 +88,7 @@ EOF
     # write end
     WG_CONF_PATH=$WG_CONF_PATH
 fi
-echo "test success: $WG_CONF_PATH" && exit 0
+# echo "test success: $WG_CONF_PATH" && exit 0
 ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
 
 if [[ -n "$WG_CONF_SHEND" ]]; then
