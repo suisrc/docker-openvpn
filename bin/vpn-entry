@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 
 # ENV VPN_TYPE= openvpn\
-#     VPN_KEY=a01 \
-#     VPN_REGION= \ la-vte | la-vte ip
-#     VPN_PORT= \
+
+# bin_test="`dirname $0`/"
 
 if [[ "$VPN_TYPE" == "openvpn" ]]; then
     echo "starting openvpn..."
-    exec `dirname $0`/vpn-entry-ov # openvpn
+    exec ${bin_test}vpn-entry-ov # openvpn
     # echo "success" && exit 0
 elif [[ "$VPN_TYPE" == "wireguard" ]]; then
     echo "starting wireguard..."
-    exec `dirname $0`/vpn-entry-wg # wireguard
+    exec ${bin_test}/vpn-entry-wg # wireguard
     # echo "success" && exit 0
 elif [[ $VPN_TYPE == *-* ]]; then
     # [provider]-[openvpn|wireguard]

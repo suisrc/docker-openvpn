@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 
-# VPN_TYPE=surfshark-openvpn VPN_REGION=la-vte bash ./bin/vpn-entry 
-# VPN_TYPE=surfshark-openvpn VPN_REGION="la-vte ip" bash ./bin/vpn-entry 
-#
-# VPN_TYPE=surfshark-wireguard VPN_REGION=la-vte bash ./bin/vpn-entry 
-# VPN_TYPE=surfshark-wireguard VPN_REGION="la-vte ip" bash ./bin/vpn-entry 
-
 bin_home=`dirname $0`
-bin_test="$bin_home/../bin/"
+# bin_test="$bin_home/../bin/"
 
 if [[ $VPN_TYPE == *-openvpn ]]; then
     echo "starting $VPN_TYPE..."
@@ -35,3 +29,11 @@ fi
 
 echo "unknown vpn: $VPN_TYPE"
 sleep 5 # 防止循环重启， 无法查看日志
+
+
+# test
+# VPN_TYPE=surfshark-openvpn VPN_REGION=la-vte bash ./bin/vpn-entry 
+# VPN_TYPE=surfshark-openvpn VPN_REGION="la-vte ip" bash ./bin/vpn-entry 
+#
+# VPN_TYPE=surfshark-wireguard VPN_REGION=la-vte bash ./bin/vpn-entry 
+# VPN_TYPE=surfshark-wireguard VPN_REGION="la-vte ip" bash ./bin/vpn-entry 
