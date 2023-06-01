@@ -17,17 +17,19 @@ clean_skip_ips() {
 if [[ $VPN_TYPE == *openvpn ]]; then
     echo "cleaning openvpn..."
     # clean_skip_ips
+    echo "[vpn-stop] kill -9 \$(pgrep openvpn)"
     kill -9 "$(pgrep openvpn)"
 elif [[ $VPN_TYPE == *wireguard ]]; then
     echo "cleaning wireguard..."
     clean_skip_ips
+    echo "[vpn-stop] wg-quick down wg0"
     wg-quick down wg0
 else 
-    echo "unknown vpn: $VPN_TYPE"
+    echo "[vpn-stop] unknown vpn: $VPN_TYPE"
 fi
 
 if [[ -n "$EXIT_SHELL" ]]; then
-  echo "exit shell: $EXIT_SHELL"
+  echo "[vpn-stop] exit shell: $EXIT_SHELL"
   bash -c "$EXIT_SHELL"
 fi
 
