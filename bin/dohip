@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 ## ./dohip github.com
 ## where is ip resolve, 查询域名的ip地址， 比DNS更快，而且防止DNS污染

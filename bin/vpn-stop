@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 # ENV VPN_TYPE= openvpn\
 
@@ -28,7 +28,7 @@ fi
 
 if [[ -n "$EXIT_SHELL" ]]; then
   echo "exit shell: $EXIT_SHELL"
-  bash -c "$EXIT_SHELL"
+  ash -c "$EXIT_SHELL"
 fi
 
-# VPN_TYPE=surfshark-openvpn bash ./bin/vpn-stop
+# VPN_TYPE=surfshark-openvpn ash ./bin/vpn-stop

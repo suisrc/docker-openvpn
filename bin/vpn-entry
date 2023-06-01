@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ash
 
 # ENV VPN_TYPE=openvpn \
 
@@ -17,11 +17,11 @@ elif [[ $VPN_TYPE == *-* ]]; then
     provider=${VPN_TYPE%-*}
     echo "provider: $provider"
     if [ -d "/vpn/$provider" ]; then
-        exec bash /vpn/$provider/entry
+        exec ash /vpn/$provider/entry
     fi
 fi
 
 echo "unknown vpn: $VPN_TYPE"
 sleep 5 # 防止循环重启， 无法查看日志
 
-# VPN_TYPE=surfshark-openvpn bash ./bin/vpn-entry
+# VPN_TYPE=surfshark-openvpn ash ./bin/vpn-entry

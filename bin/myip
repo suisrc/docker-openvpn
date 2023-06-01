@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ash
 
 ## ./myip
 ## where is my ip, 获取当前节点的公网ip地址， 包含了国家信息

@@ -67,3 +67,8 @@ ENV SOCKS5="off" \ # 是否启用socks5代理
     HEALTH_SHELL= \  # 健康检查脚本  
     HEALTH_URI= \  # 健康检查地址  
     TESTIP_URI=  # 测试IP地址
+
+## 其他
+
+脚本使用 bash -> ash
+ln -sf /bin/bash /usr/local/bin/ash

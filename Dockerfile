@@ -1,11 +1,10 @@
 FROM alpine:3.18
 
 RUN apk add --no-cache \
-    curl jq bash \
+    curl jq \
     openvpn \
     wireguard-tools \
     dante-server \
-    && ln -sf /bin/sh /bin/bash \
     && rm -rf /var/cache/apk/*
 
 # 修正一下wg-quick的问题，如果注解或者容器配置了 src_valid_mark 不需要必须特权模式下运行
