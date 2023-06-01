@@ -1,4 +1,5 @@
 FROM alpine:3.18
+
 RUN apk add --no-cache curl bash jq openvpn wireguard-tools dante-server
 
 # 修正一下wg-quick的问题，如果注解或者容器配置了 src_valid_mark 不需要必须特权模式下运行
@@ -13,7 +14,7 @@ ADD ["surfshark", "/vpn/"]
 
 ENV SOCKS5="off" \ 
     DANTE_CONF= \
-    VPN_TYPE= openvpn\
+    VPN_TYPE=openvpn \
     VPN_KEY=a01 \
     VPN_REGION= \
     SKIPPED_IPS= \
