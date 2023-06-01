@@ -12,7 +12,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, proto: $proto, location: $location"
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
     fi
-    exec vpn-entry # openvpn
+    exec vpn-entry-ov # openvpn
 elif [[ $VPN_TYPE == wireguard ]]; then
     echo "[surfshark] starting $VPN_TYPE..."
     if [[ -n $VPN_REGION ]]; then
@@ -23,7 +23,7 @@ elif [[ $VPN_TYPE == wireguard ]]; then
         if [[ -z "$WG_PEER_PUBLIC_KEY" ]]; then export WG_PEER_PUBLIC_KEY="$secret"; fi
         if [[ -z "$WG_PEER_ENDPOINT" ]]; then export WG_PEER_ENDPOINT="$endpoint:$port"; fi
     fi
-    exec vpn-entry # wireguard
+    exec vpn-entry-wg # wireguard
 fi
 
 echo "[surfshark] unknown vpn: $VPN_TYPE"
