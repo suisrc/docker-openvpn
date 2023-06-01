@@ -17,7 +17,7 @@ elif [[ $VPN_TYPE == *-* ]]; then
     provider=${VPN_TYPE%-*}
     echo "provider: $provider"
     if [ -d "/vpn/$provider" ]; then
-        exec ash /vpn/$provider/entry
+        VPN_TYPE=${VPN_TYPE#*-} exec ash /vpn/$provider/entry
     fi
 fi
 
