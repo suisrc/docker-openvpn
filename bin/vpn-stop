@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ENV VPN_TYPE= openvpn\
+
 clean_skip_ips() {
   if [[ -n "$SKIPPED_IPS" ]]; then
       # echo "skipped ips: $SKIPPED_IPS"
@@ -12,11 +14,11 @@ clean_skip_ips() {
   fi
 }
 
-if [[ "$VPN_TYPE" == "openvpn" ]]; then
+if [[ "$VPN_TYPE" == "*openvpn" ]]; then
     echo "cleaning openvpn..."
     # clean_skip_ips
     kill TERM `pgrep openvpn`
-elif [[ "$VPN_TYPE" == "wireguard" ]]; then
+elif [[ "$VPN_TYPE" == "*wireguard" ]]; then
     echo "cleaning wireguard..."
     clean_skip_ips
     wg-quick down wg0
@@ -25,6 +27,6 @@ else
 fi
 
 if [[ -n "$EXIT_SHELL" ]]; then
-  echo "exec exit shell: $EXIT_SHELL"
+  echo "exit shell: $EXIT_SHELL"
   bash -c "$EXIT_SHELL"
 fi

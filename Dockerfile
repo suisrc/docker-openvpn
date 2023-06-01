@@ -8,6 +8,9 @@ RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.c
 ADD ["openvpn.*", "wireguard.*", "/vpn/"]
 ADD [ "bin/*", "/usr/bin/" ]
 
+# 供应商适配
+ADD ["surfshark", "/vpn/"]
+
 ENV SOCKS5="off" \ 
     DANTE_CONF= \
     VPN_TYPE= openvpn\
@@ -17,6 +20,7 @@ ENV SOCKS5="off" \
     OV_USER_PASS= \
     OV_CONF_PATH= \
     OV_CONF_SHELL= \
+    OV_CONF_SHEND= \
     WG_PRIVATE_KEY= \
     WG_ADDRESS_KEY= \
     WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\
@@ -27,6 +31,7 @@ ENV SOCKS5="off" \
     WG_PEER_KEEPALIVE= \
     WG_CONF_PATH= \
     WG_CONF_SHELL= \
+    WG_CONF_SHEND= \
     SUCC_SHELL= \
     EXIT_SHELL= \
     HEALTH_SHELL= \

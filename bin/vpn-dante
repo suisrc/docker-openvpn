@@ -2,6 +2,9 @@
 
 # ENV DANTE_CONF= \
 
+# Dante Running. -D: run as daemon
+# sockd -f "$DANTE_CONF" -D
+
 # if file is prefix http, download it.
 if [[ $DANTE_CONF == http* ]]; then
     echo "downloading dante conf file: $DANTE_CONF"

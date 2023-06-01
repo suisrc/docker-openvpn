@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash wireguard.surfshark.sh la-vte
+# bash surfshark/tool.sh la-vte
 
 host=$1
 if [[ $host != *.prod.surfshark.com ]]; then

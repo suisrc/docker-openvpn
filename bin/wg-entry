@@ -14,6 +14,7 @@
 #     WG_PEER_KEEPALIVE= \
 #     WG_CONF_PATH= \
 #     WG_CONF_SHELL= \
+#     WG_CONF_SHEND= \
 #     SUCC_SHELL= \
 #     EXIT_SHELL= \
 #     HEALTH_SHELL= \
@@ -28,15 +29,22 @@ cleanup() {
     vpn-stop
 }
 
-# if file is prefix http, download it.
-if [[ $WG_CONF == http* ]]; then
-    echo "downloading wireguard conf file: $WG_CONF"
-    curl -ksSL "$WG_CONF" -o /vpn/wireguard.conf
-    WG_CONF=/vpn/wireguard.conf
+# 执行配置脚本，在启动前执行
+if [[ -n $WG_CONF_SHELL ]]; then
+    echo "create openvpn conf by shell: $WG_CONF_SHELL"
+    bash -c "$WG_CONF_SHELL"
 fi
 
-# 如果WG_CONF不存在，通过环境变量创建
-if [[ ! -f $WG_CONF ]]; then
+# if file is prefix http, download it.
+if [[ $WG_CONF_PATH == http* ]]; then
+    echo "downloading wireguard conf file: $WG_CONF_PATH"
+    curl -ksSL "$WG_CONF_PATH" -o /vpn/wireguard.conf
+    WG_CONF_PATH=/vpn/wireguard.conf
+fi
+
+# 如果 WG_CONF_PATH 不存在，通过环境变量创建
+if [[ ! -f $WG_CONF_PATH ]]; then
+    # write interface
     cat <<EOF > /vpn/wireguard.conf
 [Interface]
 PrivateKey = $WG_PRIVATE_KEY
@@ -47,6 +55,7 @@ EOF
     if [[ -n $WG_ADDRESS_MTU ]]; then
         echo "MTU = $WG_ADDRESS_MTU" >> /vpn/wireguard.conf
     fi
+    # write peer
     cat <<EOF >> /vpn/wireguard.conf
 
 [Peer]
@@ -58,83 +67,66 @@ EOF
     if [[ -n $WG_PEER_KEEPALIVE ]]; then
         echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> /vpn/wireguard.conf
     fi
-    WG_CONF=/vpn/wireguard.conf
+    # write end
+    WG_CONF_PATH=/vpn/wireguard.conf
 fi
+ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
 
-ln -sf "$WG_CONF" /etc/wireguard/wg0.conf
-
-# if file is prefix http, download it.
-if [[ $DANTE_CONF == http* ]]; then
-    echo "downloading dante conf file: $DANTE_CONF"
-    curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
-    DANTE_CONF=/vpn/sockd.conf
-fi
-# Dante configuration file.
-if [[ ! -f $DANTE_CONF ]]; then
-    # default dante conf file.
-    DANTE_CONF=/vpn/sockd.default.conf
-fi
-
-if [[ -n "$WG_CONF_SHELL" ]]; then
-    echo "exec wireguard conf shell: $WG_CONF_SHELL"
+if [[ -n "$WG_CONF_SHEND" ]]; then
+    echo "fix wireguard conf shell: $WG_CONF_SHEND"
     bash -c "$WG_CONF_SHELL"
 fi
-echo "using wireguard conf file: $WG_CONF"
 
-# 配置不进行代理的IP段
-if [[ -n "$WG_SKIPPED_IPS" ]]; then
-    echo "skipped ips: $WG_SKIPPED_IPS"
-    skip_gw=$(ip route show | grep via | awk '{print $3}')
-    IFS=',' read -ra skip_ips <<< "$WG_SKIPPED_IPS"
+# 处理 SKIPPED_IPS
+if [[ -n "$SKIPPED_IPS" ]]; then
+    echo "using wireguard skip ips: $SKIPPED_IPS"
+    default_gw=$(ip route show | grep via | awk '{print $3}')
+    IFS=',' read -ra skip_ips <<< "$SKIPPED_IPS"
     for skip_ip in "${skip_ips[@]}"; do
-        echo "[+] ip route add $skip_ip via $skip_gw"
-        ip route add "$skip_ip" via "$skip_gw"
+        echo "[+] ip route add $skip_ip via $default_gw"
+        ip route add "$skip_ip" via "$default_gw"
     done
 fi
 
+echo "using wireguard conf file: $WG_CONF_SHELL"
+
 wg-quick up wg0
-# 如果没有/sys/class/net/wg0 文件启动失败，退出
 if [[ ! -e /sys/class/net/wg0 ]]; then
     echo "wg0 not found, wireguard start failed."
     exit 1
 fi
-# 显示连接状况
-sleep 1
-wg show
-echo ""
-echo "wg0 has been install"
 
+# 显示连接状况
+sleep 1 && wg show
+echo "" && echo "wg0 is installed"
 
 trap cleanup TERM
 
-# 启动dante-socks5代理
+# starting dante socks5 proxy
 if [[ "$SOCKS5" == "on" ]]; then
-    echo "using dante conf file: $DANTE_CONF"
-    sockd -f "$DANTE_CONF" -D
+    sleep 1 && vpn-dante wireguard # 基本不需要延迟， wireguard 启动wg0很快
 fi
 
 #=========================================================
 # 成功启动后执行的脚本
 if [[ -n "$SUCC_SHELL" ]]; then
-  echo "exec succ shell: $SUCC_SHELL"
+  echo "succ shell: $SUCC_SHELL"
   bash -c "$SUCC_SHELL"
 fi
 if [[ -n "$TESTIP_URI" ]]; then
-    sleep 3
-    echo "public ip: $(curl -ksSL $TESTIP_URI)"
+    sleep 3 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
 fi
-# 如果存在健康检查地址，就进行健康检查，否则等待openvpn进程结束
+# 执行健康检查脚本
 if [[ -n "$HEALTH_SHELL" ]]; then
+    # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
+    # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
+    # 如果/sys/class/net/wg0不存在，说明wireguard已经退出
     while [[ -e /sys/class/net/wg0 ]]; do
-        # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
-        # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
-        sleep 5
-        bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
-    # monitor wg-quick down wg0
-    while [[ -e /sys/class/net/wg0 ]]; do
-        sleep 5 # 检查wg0是否卸载
-    done
+    # monitor wg-quick down wg0， 检查wg0是否卸载
+    while [[ -e /sys/class/net/wg0 ]]; do sleep 5 done
+    # while true; do sleep 5 && echo `date`; done
 fi
-echo "wg0 has been removed"
+echo "exit wireguard"

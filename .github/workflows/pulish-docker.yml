@@ -5,8 +5,8 @@ on:
     branches: [ master ]
 
 env:
-  DOCKER_IMAGE_NAME: suisrc/openvpn
-  DOCKER_VERSION: '0.0.6'
+  DOCKER_IMAGE_NAME: suisrc/openwire
+  DOCKER_VERSION: '0.0.1'
 
   GITHUB_REGISTRY: ghcr.io
   QUAY_REGISTRY: quay.io
