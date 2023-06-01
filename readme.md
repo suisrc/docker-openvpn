@@ -24,7 +24,7 @@ quay.io/suisrc/openwire
 
 docker run --rm -it \
 -e SOCKS5=on \
--e VPN_TYPE=openvpn-surfshark \
+-e VPN_TYPE=surfshark-openvpn \
 -e VPN_REGION="la-vte ip" \
 -e OV_USER_PASS="user:pass" \
 suisrc/openwire:0.0.1
@@ -32,10 +32,12 @@ suisrc/openwire:0.0.1
 
 docker run --rm -it \
 -e SOCKS5=on \
--e VPN_TYPE=wireguard-surfshark \
+-e VPN_TYPE=surfshark-wireguard \
 -e VPN_REGION="la-vte ip" \
 -e WG_PRIVATE_KEY="xxx" \
 suisrc/openwire:0.0.1
+
+进行供应商扩展时候，需要再 $provider 目录下提供 entry 文件
 
 ## 变量
 

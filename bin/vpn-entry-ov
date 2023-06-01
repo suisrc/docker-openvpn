@@ -70,6 +70,7 @@ if [[ -n "$SKIPPED_IPS" ]]; then
         echo "route $line net_gateway" >> "$OV_CONF_PATH"
     done
 fi
+echo "test success: $OV_CONF_PATH" && exit 0
 
 # 修复配置脚本，在启动前执行
 if [[ -n $OV_CONF_SHEND ]]; then

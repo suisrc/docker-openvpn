@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# bash surfshark/tool.sh la-vte
+# bash surfshark/tool la-vte
 
 host=$1
 if [[ $host != *.prod.surfshark.com ]]; then
     host=$host".prod.surfshark.com"
 fi
 
-# 读取server list for get public key
-cat `dirname $0`/wireguard.surfshark.list | grep $host | while read line; do
+# 读取 server data
+cat `dirname $0`/server.data | grep $host | while read line; do
     IFS=' ' read -r id connectionName publicKey tag location <<< "$line"
     if [[ ! ($tag == p* || $tag == v*)  ]]; then
         location=$tag" "$location

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # ENV SOCKS5="off" \ 
 #     VPN_KEY=a01 \
@@ -30,7 +30,7 @@ cleanup() {
 }
 
 # 执行配置脚本，在启动前执行
-if [[ -n $WG_CONF_SHELL ]]; then
+if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create openvpn conf by shell: $WG_CONF_SHELL"
     bash -c "$WG_CONF_SHELL"
 fi
@@ -44,6 +44,22 @@ fi
 
 # 如果 WG_CONF_PATH 不存在，通过环境变量创建
 if [[ ! -f $WG_CONF_PATH ]]; then
+    if [[ -z "$WG_PRIVATE_KEY" ]]; then
+        echo "missing wireguard private key"
+        exit 1
+    fi
+    if [[ -z "$WG_ADDRESS_KEY" ]]; then
+        echo "missing wireguard address key"
+        exit 1
+    fi
+    if [[ -z "$WG_PEER_PUBLIC_KEY" ]]; then
+        echo "missing wireguard peer public key"
+        exit 1
+    fi
+    if [[ -z "$WG_PEER_ENDPOINT" ]]; then
+        echo "missing wireguard peer endpoint"
+        exit 1
+    fi
     # write interface
     cat <<EOF > /vpn/wireguard.conf
 [Interface]
@@ -52,7 +68,7 @@ Address = $WG_ADDRESS_KEY
 DNS = $WG_ADDRESS_DNS
 
 EOF
-    if [[ -n $WG_ADDRESS_MTU ]]; then
+    if [[ -n "$WG_ADDRESS_MTU" ]]; then
         echo "MTU = $WG_ADDRESS_MTU" >> /vpn/wireguard.conf
     fi
     # write peer
@@ -64,17 +80,18 @@ AllowedIPs = $WG_PEER_ALLOWED_IPS
 Endpoint = $WG_PEER_ENDPOINT
 
 EOF
-    if [[ -n $WG_PEER_KEEPALIVE ]]; then
+    if [[ -n "$WG_PEER_KEEPALIVE" ]]; then
         echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> /vpn/wireguard.conf
     fi
     # write end
     WG_CONF_PATH=/vpn/wireguard.conf
 fi
+echo "test success: $WG_CONF_PATH" && exit 0
 ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
 
 if [[ -n "$WG_CONF_SHEND" ]]; then
     echo "fix wireguard conf shell: $WG_CONF_SHEND"
-    bash -c "$WG_CONF_SHELL"
+    bash -c "$WG_CONF_SHEND"
 fi
 
 # 处理 SKIPPED_IPS
@@ -88,7 +105,7 @@ if [[ -n "$SKIPPED_IPS" ]]; then
     done
 fi
 
-echo "using wireguard conf file: $WG_CONF_SHELL"
+echo "using wireguard conf file: $WG_CONF_PATH"
 
 wg-quick up wg0
 if [[ ! -e /sys/class/net/wg0 ]]; then
