@@ -41,9 +41,11 @@ if [[ $WG_CONF_PATH == http* ]]; then
     curl -ksSL "$WG_CONF_PATH" -o /vpn/wireguard.conf
     WG_CONF_PATH=/vpn/wireguard.conf
 fi
-
+if [[ -z "$WG_CONF_PATH" ]]; then
+    WG_CONF_PATH=/vpn/wireguard.conf
+fi
 # 如果 WG_CONF_PATH 不存在，通过环境变量创建
-if [[ ! -f $WG_CONF_PATH ]]; then
+if [[ ! -f "$WG_CONF_PATH" ]]; then
     if [[ -z "$WG_PRIVATE_KEY" ]]; then
         echo "missing wireguard private key"
         exit 1
@@ -61,7 +63,7 @@ if [[ ! -f $WG_CONF_PATH ]]; then
         exit 1
     fi
     # write interface
-    cat <<EOF > /vpn/wireguard.conf
+    cat <<EOF > "$WG_CONF_PATH"
 [Interface]
 PrivateKey = $WG_PRIVATE_KEY
 Address = $WG_ADDRESS_KEY
@@ -69,10 +71,10 @@ DNS = $WG_ADDRESS_DNS
 
 EOF
     if [[ -n "$WG_ADDRESS_MTU" ]]; then
-        echo "MTU = $WG_ADDRESS_MTU" >> /vpn/wireguard.conf
+        echo "MTU = $WG_ADDRESS_MTU" >> "$WG_CONF_PATH"
     fi
     # write peer
-    cat <<EOF >> /vpn/wireguard.conf
+    cat <<EOF >> "$WG_CONF_PATH"
 
 [Peer]
 PublicKey = $WG_PEER_PUBLIC_KEY
@@ -81,10 +83,10 @@ Endpoint = $WG_PEER_ENDPOINT
 
 EOF
     if [[ -n "$WG_PEER_KEEPALIVE" ]]; then
-        echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> /vpn/wireguard.conf
+        echo "PersistentKeepalive = $WG_PEER_KEEPALIVE" >> "$WG_CONF_PATH"
     fi
     # write end
-    WG_CONF_PATH=/vpn/wireguard.conf
+    WG_CONF_PATH=$WG_CONF_PATH
 fi
 echo "test success: $WG_CONF_PATH" && exit 0
 ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf

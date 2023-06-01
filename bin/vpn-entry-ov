@@ -46,8 +46,11 @@ if [[ $OV_CONF_PATH == http* ]]; then
     curl -ksSL "$OV_CONF_PATH" -o /vpn/openvpn.conf
     OV_CONF_PATH=/vpn/openvpn.conf
 fi
+if [[ -z "$OV_CONF_PATH" ]]; then
+    OV_CONF_PATH=/vpn/openvpn.conf
+fi
 # check OpenVPN conf file.
-if [[ ! -f $OV_CONF_PATH ]]; then
+if [[ ! -f "$OV_CONF_PATH" ]]; then
     echo "openvpn conf file not found: $OV_CONF_PATH"
     exit 1
 fi
