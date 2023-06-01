@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 bin_home=`dirname $0`
 # bin_test="$bin_home/../bin/"

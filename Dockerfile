@@ -14,7 +14,7 @@ ADD ["surfshark", "/vpn/"]
 
 ENV SOCKS5="off" \ 
     DANTE_CONF= \
-    VPN_TYPE=openvpn \
+    VPN_TYPE= \
     VPN_KEY=a01 \
     VPN_REGION= \
     SKIPPED_IPS= \
@@ -24,11 +24,11 @@ ENV SOCKS5="off" \
     OV_CONF_SHEND= \
     WG_PRIVATE_KEY= \
     WG_ADDRESS_KEY= \
-    WG_ADDRESS_DNS="1.1.1.1,8.8.8.8"\
+    WG_ADDRESS_DNS="1.1.1.1,8.8.8.8" \
     WG_ADDRESS_MTU= \
     WG_PEER_ENDPOINT= \
     WG_PEER_PUBLIC_KEY= \
-    WG_PEER_ALLOWED_IPS="0.0.0.0/0"\
+    WG_PEER_ALLOWED_IPS="0.0.0.0/0" \
     WG_PEER_KEEPALIVE= \
     WG_CONF_PATH= \
     WG_CONF_SHELL= \

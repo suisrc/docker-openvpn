@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# ENV VPN_TYPE= openvpn\
+# ENV VPN_TYPE=openvpn \
 
 # bin_test="`dirname $0`/"
 
