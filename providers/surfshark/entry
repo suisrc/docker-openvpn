@@ -1,7 +1,6 @@
 #!/bin/ash
 
 bin_home=`dirname $0`
-# bin_test="$bin_home/../bin/"
 
 if [[ $VPN_TYPE == openvpn ]]; then
     echo "starting $VPN_TYPE..."
@@ -13,7 +12,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, proto: $proto, location: $location"
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
     fi
-    exec ${bin_test}vpn-entry # openvpn
+    exec vpn-entry # openvpn
 elif [[ $VPN_TYPE == wireguard ]]; then
     echo "starting $VPN_TYPE..."
     if [[ -n $VPN_REGION ]]; then
@@ -24,7 +23,7 @@ elif [[ $VPN_TYPE == wireguard ]]; then
         if [[ -z "$WG_PEER_PUBLIC_KEY" ]]; then export WG_PEER_PUBLIC_KEY="$secret"; fi
         if [[ -z "$WG_PEER_ENDPOINT" ]]; then export WG_PEER_ENDPOINT="$endpoint:$port"; fi
     fi
-    exec ${bin_test}vpn-entry # wireguard
+    exec vpn-entry # wireguard
 fi
 
 echo "unknown vpn: $VPN_TYPE"
@@ -32,9 +31,9 @@ sleep 5 # 防止循环重启， 无法查看日志
 
 
 # test
-# VPN_TYPE=surfshark-openvpn VPN_REGION=la-vte ash ./bin/vpn-entry 
-# VPN_TYPE=surfshark-openvpn VPN_REGION="la-vte ip" ash ./bin/vpn-entry 
+# VPN_TYPE=openvpn VPN_REGION=la-vte ash ./providers/surfshark/entry 
+# VPN_TYPE=openvpn VPN_REGION="la-vte ip" ash ./providers/surfshark/entry 
 #
-# VPN_TYPE=surfshark-wireguard VPN_REGION=la-vte ash ./bin/vpn-entry 
-# VPN_TYPE=surfshark-wireguard VPN_REGION="la-vte ip" ash ./bin/vpn-entry 
+# VPN_TYPE=wireguard VPN_REGION=la-vte ash ./providers/surfshark/entry 
+# VPN_TYPE=wireguard VPN_REGION="la-vte ip" ash ./providers/surfshark/entry 
 #

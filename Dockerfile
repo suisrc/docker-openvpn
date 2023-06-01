@@ -11,11 +11,8 @@ RUN apk add --no-cache \
 # [[ $proto == -4 ]] && cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1
 RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.conf.all.src_valid_mark | awk '{print \$3}') != 1 ]]/g" /usr/bin/wg-quick
 
-ADD ["openvpn.*", "wireguard.*", "/vpn/"]
 ADD [ "bin/*", "/usr/local/bin/" ]
-
-# 供应商适配
-ADD "surfshark", "/vpn/surfshark"
+ADD ["openvpn.*", "wireguard.*", "providers/*", "/vpn/"]
 
 ENV SOCKS5="off" \ 
     DANTE_CONF= \

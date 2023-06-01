@@ -2,15 +2,13 @@
 
 # ENV VPN_TYPE=openvpn \
 
-# bin_test="`dirname $0`/"
-
 if [[ "$VPN_TYPE" == "openvpn" ]]; then
     echo "starting openvpn..."
-    exec ${bin_test}vpn-entry-ov # openvpn
+    exec vpn-entry-ov # openvpn
     # echo "success" && exit 0
 elif [[ "$VPN_TYPE" == "wireguard" ]]; then
     echo "starting wireguard..."
-    exec ${bin_test}/vpn-entry-wg # wireguard
+    exec /vpn-entry-wg # wireguard
     # echo "success" && exit 0
 elif [[ $VPN_TYPE == *-* ]]; then
     # [provider]-[openvpn|wireguard]
@@ -19,6 +17,7 @@ elif [[ $VPN_TYPE == *-* ]]; then
     if [ -d "/vpn/$provider" ]; then
         VPN_TYPE=${VPN_TYPE#*-} exec ash /vpn/$provider/entry
     fi
+    echo "provider: $provider not found"
 fi
 
 echo "unknown vpn: $VPN_TYPE"
