@@ -5,7 +5,7 @@ RUN apk add --no-cache \
     openvpn \
     wireguard-tools \
     dante-server \
-    && ln -sf /bin/busybox /bin/bash \
+    && ln -sf /bin/sh /bin/bash \
     && rm -rf /var/cache/apk/*
 
 # 修正一下wg-quick的问题，如果注解或者容器配置了 src_valid_mark 不需要必须特权模式下运行
