@@ -9,7 +9,7 @@ clean_skip_ips() {
       IFS=',' read -ra skip_ips <<< "$SKIPPED_IPS"
       for skip_ip in "${skip_ips[@]}"; do
           echo "[-] ip route del $skip_ip via $default_gw"
-          ip route del "$skip_ip" via "$default_gw"
+          ip route del $skip_ip via $default_gw
       done
   fi
 }
@@ -17,7 +17,7 @@ clean_skip_ips() {
 if [[ $VPN_TYPE == *openvpn ]]; then
     echo "cleaning openvpn..."
     # clean_skip_ips
-    kill TERM `pgrep openvpn`
+    kill -9 "$(pgrep openvpn)"
 elif [[ $VPN_TYPE == *wireguard ]]; then
     echo "cleaning wireguard..."
     clean_skip_ips

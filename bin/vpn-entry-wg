@@ -103,7 +103,7 @@ if [[ -n "$SKIPPED_IPS" ]]; then
     IFS=',' read -ra skip_ips <<< "$SKIPPED_IPS"
     for skip_ip in "${skip_ips[@]}"; do
         echo "[+] ip route add $skip_ip via $default_gw"
-        ip route add "$skip_ip" via "$default_gw"
+        ip route add $skip_ip via $default_gw
     done
 fi
 
