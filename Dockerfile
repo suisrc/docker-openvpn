@@ -2,7 +2,7 @@ FROM alpine:3.18 as builder
 
 ARG VERSION=1.8.1
 
-RUN apk add --no-cache curl 7za ca-certificates
+RUN apk add --no-cache curl p7zip ca-certificates
 
 # https://github.com/XTLS/Xray-core/releases/download/v?.?.?/Xray-linux-64.zip
 RUN RUN RAY_RURL="https://github.com/XTLS/Xray-core/releases" &&\
