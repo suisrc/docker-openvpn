@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# ENV XRAY_CONF= \
+
+# xray -config c.json
+
+# if file is prefix http, download it.
+if [[ $XRAY_CONF == http* ]]; then
+    echo "downloading xray conf file: $XRAY_CONF"
+    curl -ksSL "$XRAY_CONF" -o /vpn/xray.conf
+    XRAY_CONF=/vpn/xray.conf
+fi
+# XRAY_CONF -> f1.json,f2.json...
+if [[ -n "$XRAY_CONF" ]]; then
+    echo "start xray conf by env: $XRAY_CONF"
+    echo "$XRAY_CONF" | tr ',' '\n' | while read -r conf; do
+        echo "start xray with conf: $conf"
+        if [[ -f "$conf" ]]; then
+            xray -config "$conf" &
+            echo "xray started with conf: $conf, pid: $!"
+        else
+            echo "xray conf file not found: $conf"
+            exit 1
+        fi
+    done
+fi
+

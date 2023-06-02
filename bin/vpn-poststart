@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# vpn 启动后执行的内容
+# $1  openvpn | wireguard
+
+# 外部IP信息确认
+if [[ -n "$TESTIP_URI" ]]; then
+    sleep 3 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
+fi
+# 成功启动后执行的脚本
+if [[ -n "$SUCC_SHELL" ]]; then
+  echo "succ shell: $SUCC_SHELL"
+  bash -c "$SUCC_SHELL"
+fi
+
+#######################################################
+# start dante socks5 proxy
+if [[ "$SOCKS5" == "on" ]]; then
+    vpn-dante $1
+fi
+
+#######################################################
+# start xray socks5,tcp,http,vmess... proxy
+if [[ -n "$XRAY_CONF" ]]; then
+    vpn-xray
+fi
+
+
+#######################################################
+echo "vpn entrypoint done."

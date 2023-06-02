@@ -1,4 +1,12 @@
-FROM alpine:3.18
+FROM suisrc/xray:1.8.1 
+# alpine:3.18 | suisrc/xray:1.8.1 
+# 版本单数使用base， 双数使用xray
+
+# f1.json,f2.json...可以同时启动多个xray服务
+ENV XRAY_CONF=
+
+# FROM alpine:3.18
+# LABEL maintainer="suisrc@outlook.com"
 
 RUN apk add --no-cache \
     curl jq bash \

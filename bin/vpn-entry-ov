@@ -89,28 +89,23 @@ echo "using openvpn auth file: $OV_USER_PASS"
 mkdir /vpn/log
 openvpn --config "$OV_CONF_PATH" "--auth-user-pass" "$OV_USER_PASS" &
 openvpn_pid=$!
+
+# 显示连接状况
+sleep 2
 if ! kill -0 "$openvpn_pid" 2>/dev/null; then
     echo "openvpn process not found, openvpn start failed."
     exit 1
 fi
+echo "" && echo "tun0 is installed"
 
 trap cleanup TERM
 
-# starting dante socks5 proxy
-if [[ "$SOCKS5" == "on" ]]; then
-    sleep 5 && vpn-dante openvpn # 延迟5s启动,openvpn启动tun0慢些
-fi
-
 # wait $openvpn_pid
 #=========================================================
-# 成功启动后执行的脚本
-if [[ -n "$SUCC_SHELL" ]]; then
-  echo "succ shell: $SUCC_SHELL"
-  bash -c "$SUCC_SHELL"
-fi
-if [[ -n "$TESTIP_URI" ]]; then
-    sleep 5 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
-fi
+# 脚本启动成功后执行的内容
+vpn-poststart openvpn
+
+
 # 执行健康检查脚本
 if [[ -n "$HEALTH_SHELL" ]]; then
     # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率

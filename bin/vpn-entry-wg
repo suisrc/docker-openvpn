@@ -121,20 +121,11 @@ echo "" && echo "wg0 is installed"
 
 trap cleanup TERM
 
-# starting dante socks5 proxy
-if [[ "$SOCKS5" == "on" ]]; then
-    sleep 1 && vpn-dante wireguard # 基本不需要延迟， wireguard 启动wg0很快
-fi
-
+# wiat /sys/class/net/wg0
 #=========================================================
-# 成功启动后执行的脚本
-if [[ -n "$SUCC_SHELL" ]]; then
-  echo "succ shell: $SUCC_SHELL"
-  bash -c "$SUCC_SHELL"
-fi
-if [[ -n "$TESTIP_URI" ]]; then
-    sleep 3 && echo "public ip: $(curl -ksSL $TESTIP_URI)"
-fi
+# 脚本启动成功后执行的内容
+vpn-poststart wireguard
+
 # 执行健康检查脚本
 if [[ -n "$HEALTH_SHELL" ]]; then
     # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
