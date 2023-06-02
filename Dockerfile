@@ -19,9 +19,9 @@ LABEL maintainer="suisrc@outlook.com"
 RUN apk add --no-cache tzdata  ca-certificates &&\
     mkdir -p /var/log/xray /usr/share/xray /etc/xray/
 
-COPY --from=builder /temp/xray /usr/local/bin/xray
-COPY --from=builder /temp/geoip.dat /usr/share/xray/geoip.dat
-COPY --from=builder /temp/geosite.dat /usr/share/xray/geosite.dat
+COPY --from=builder /tmp/xray /usr/local/bin/xray
+COPY --from=builder /tmp/geoip.dat /usr/share/xray/geoip.dat
+COPY --from=builder /tmp/geosite.dat /usr/share/xray/geosite.dat
 COPY config.json /etc/xray/config.json
 
 ENV TZ=Asia/Shanghai
