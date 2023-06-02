@@ -1,24 +1,28 @@
-FROM alpine:3.18
+FROM alpine:3.18 as builder
 
-RUN apk add --no-cache curl bash jq openvpn dante-server
-ADD ["openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
+ARG VERSION=1.8.1
 
-WORKDIR /vpn
+RUN apk add --no-cache curl 7za ca-certificates
 
-# 监控检查在entry.sh中执行
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
-# CMD curl -f http://localhost:1080/ || exit 1
+# https://github.com/XTLS/Xray-core/releases/download/v?.?.?/Xray-linux-64.zip
+RUN RUN RAY_RURL="https://github.com/XTLS/Xray-core/releases" &&\
+    RAY_URL="${RAY_RURL}/download/v${VSC_RELEASE}/Xray-linux-64.zip" &&\
+    curl -L -o /tmp/xray.zip ${RAY_URL} &&\
+    7za x /tmp/xray.zip -o/tmp &&\
+    chmod +x /tmp/xray
 
-ENV SOCKS5="off" \ 
-    OPVPN_AUTH= \
-    OPVPN_CONF= \
-    OPSKIP_IPS= \
-    DANTE_CONF= \
-    CONF_SHELL= \
-    SUCC_SHELL= \
-    EXIT_SHELL= \
-    HEALTH_SHELL= \
-    TESTIP_URI=
 
-ADD [ "entry", "p2p", "dohip", "myip", "/usr/bin/" ]
-CMD ["entry"]
+FROM alpine:3.18 as runner
+
+LABEL maintainer="suisrc@outlook.com"
+
+RUN apk add --no-cache tzdata  ca-certificates &&\
+    mkdir -p /var/log/xray /usr/share/xray /etc/xray/
+
+COPY --from=builder /temp/xray /usr/local/bin/xray
+COPY --from=builder /temp/geoip.dat /usr/share/xray/geoip.dat
+COPY --from=builder /temp/geosite.dat /usr/share/xray/geosite.dat
+COPY config.json /etc/xray/config.json
+
+ENV TZ=Asia/Shanghai
+CMD [ "xray", "-config", "/etc/xray/config.json" ]

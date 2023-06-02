@@ -2,11 +2,11 @@ name: publish-docker
 
 on:
   push:
-    branches: [ master ]
+    branches: [ xray ]
 
 env:
-  DOCKER_IMAGE_NAME: suisrc/openvpn
-  DOCKER_VERSION: '0.0.6'
+  DOCKER_IMAGE_NAME: suisrc/xray
+  DOCKER_VERSION: '1.8.1'
 
   GITHUB_REGISTRY: ghcr.io
   QUAY_REGISTRY: quay.io

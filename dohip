@@ -1,5 +1,0 @@
-#!/bin/bash
-
-## ./dohip github.com
-## where is ip resolve, 查询域名的ip地址， 比DNS更快，而且防止DNS污染
-curl -sSL -H 'Accept: application/dns-json' https://1.1.1.1/dns-query\?type\=A\&name\=$1 | jq '.Answer | to_entries[] | .value.data' | head -n 1 | sed 's/"//g'
