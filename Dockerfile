@@ -5,7 +5,7 @@ ARG VERSION=1.8.1
 RUN apk add --no-cache curl p7zip ca-certificates
 
 # https://github.com/XTLS/Xray-core/releases/download/v?.?.?/Xray-linux-64.zip
-RUN RUN RAY_RURL="https://github.com/XTLS/Xray-core/releases" &&\
+RUN RAY_RURL="https://github.com/XTLS/Xray-core/releases" &&\
     RAY_URL="${RAY_RURL}/download/v${VSC_RELEASE}/Xray-linux-64.zip" &&\
     curl -L -o /tmp/xray.zip ${RAY_URL} &&\
     7za x /tmp/xray.zip -o/tmp &&\
