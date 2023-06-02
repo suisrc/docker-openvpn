@@ -12,16 +12,31 @@ if [[ $XRAY_CONF == http* ]]; then
 fi
 # XRAY_CONF -> f1.json,f2.json...
 if [[ -n "$XRAY_CONF" ]]; then
-    echo "start xray conf by env: $XRAY_CONF"
-    echo "$XRAY_CONF" | tr ',' '\n' | while read -r conf; do
-        echo "start xray with conf: $conf"
-        if [[ -f "$conf" ]]; then
-            xray -config "$conf" &
-            echo "xray started with conf: $conf, pid: $!"
-        else
-            echo "xray conf file not found: $conf"
-            exit 1
-        fi
-    done
+    # 如果是个文件夹，遍历文件夹中所有的json启动xray
+    if [[ -d "$XRAY_CONF" ]]; then
+        echo "start xray conf by dir: $XRAY_CONF"
+        for conf in "$XRAY_CONF"/*.json; do
+            echo "start xray with conf: $conf"
+            if [[ -f "$conf" ]]; then
+                xray -config "$conf" &
+                echo "xray started with conf: $conf, pid: $!"
+            else
+                echo "xray conf file not found: $conf"
+                exit 1
+            fi
+        done
+    else # 遍历文件, ',' 分割， 启动xray
+        echo "start xray conf by env: $XRAY_CONF"
+        echo "$XRAY_CONF" | tr ',' '\n' | while read -r conf; do
+            echo "start xray with conf: $conf"
+            if [[ -f "$conf" ]]; then
+                xray -config "$conf" &
+                echo "xray started with conf: $conf, pid: $!"
+            else
+                echo "xray conf file not found: $conf"
+                exit 1
+            fi
+        done
+    fi
 fi
 
