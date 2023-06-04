@@ -8,6 +8,11 @@ if [[ "$XRAY_AUTO" == "on" ]]; then
     export EXIT_SHELL="bash $bin_home/xray clean;$EXIT_SHELL"
     echo "[surfshark] auto xray, set SUCC_SHELL: $SUCC_SHELL"
     echo "[surfshark] auto xray, set EXIT_SHELL: $EXIT_SHELL"
+    if [[ -f /etc/xray0.json ]]; then
+        cp -f $bin_home/xray.json /etc/xray0.json
+        echo "[surfshark] auto xray, default file cp: /etc/xray0.json"
+        echo "[surfshark] auto xray, default user id: $(cat $bin_home/xray.json | jq -r '.inbounds[0].settings.clients[0].id')"
+    fi
 fi
 
 if [[ $VPN_TYPE == openvpn ]]; then

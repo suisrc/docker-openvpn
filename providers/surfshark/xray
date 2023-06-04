@@ -12,7 +12,7 @@
 #          POD_IP，  容器IP
 #          WG_PRIVATE_KEY, 私钥
 #          /etc/xray0.json， xray配置的模板， 会使用该模板分裂出多个链接配置
-#          模板中的配置： <service-port>， <public-key>， <endpoint>， <private-key>
+#          模板中的配置： 10140(PORT)， <public-key>， <endpoint>， <private-key>
 # 
 
 # test
@@ -29,7 +29,7 @@ build_xray_conf() {
     fi;
     for ((i=1; i<=${#cns[@]}; i++)); do port=$((${XRAY_PORT}+i));
       IFS=' ' read -r endpoint secret location <<< "$(bash `dirname $0`/tool ${cns[(($i-1))]} ip)";
-      cat /etc/xray0.json | sed -e "s|<service-port>|$port|" -e "s|<public-key>|$secret|" -e "s|<endpoint>|$endpoint:51820|" -e "s|<private-key>|${WG_PRIVATE_KEY}|" > /xray/$XRAY_KEY-$i.json;
+      cat /etc/xray0.json | sed -e "s|10140|$port|" -e "s|<public-key>|$secret|" -e "s|<endpoint>|$endpoint:51820|" -e "s|<private-key>|${WG_PRIVATE_KEY}|" > /xray/$XRAY_KEY-$i.json;
       echo "endpoint: $endpoint, location: $location, service-port: $port";
       echo "~^$XRAY_KEY$i\.  $POD_IP:$port;" > /ngx/$XRAY_KEY-$i.tcp4;
     done;

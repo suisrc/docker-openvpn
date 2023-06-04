@@ -7,7 +7,7 @@ ENV XRAY_CONF= \
     XRAY_KEY= \
     XRAY_CNS= \
     XRAY_LOC0=on \
-    XRAY_PORT=12301 \
+    XRAY_PORT=10140 \
     XRAY_AUTO=off
     
 
