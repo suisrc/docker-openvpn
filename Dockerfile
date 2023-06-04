@@ -6,6 +6,7 @@ FROM suisrc/xray:1.8.1
 ENV XRAY_CONF= \
     XRAY_KEY= \
     XRAY_CNS= \
+    XRAY_TMPL= \
     XRAY_LOC0=on \
     XRAY_PORT=10140 \
     XRAY_AUTO=off
