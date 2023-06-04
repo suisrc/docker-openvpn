@@ -18,6 +18,7 @@
 # test
 # XRAY_KEY=tst XRAY_CNS=ch-zur,tw-tai POD_IP=127.0.0.1 XRAY_PORT=12301 bash providers/surfshark/xray build
 # XRAY_KEY=tst bash providers/surfshark/xray clean
+# XRAY_KEY=tst bash -c "bash providers/surfshark/xray clean;"
 
 build_xray_conf() {
   # 构建配置

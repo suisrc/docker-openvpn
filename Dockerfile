@@ -7,7 +7,8 @@ ENV XRAY_CONF= \
     XRAY_KEY= \
     XRAY_CNS= \
     XRAY_LOC0=on \
-    XRAY_PORT=12301
+    XRAY_PORT=12301 \
+    XRAY_AUTO=off
     
 
 # FROM alpine:3.18
@@ -27,7 +28,7 @@ RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.c
 ADD [ "bin/*", "/usr/local/bin/" ]
 ADD ["openvpn.*", "wireguard.*", "providers/", "/vpn/"]
 
-ENV SOCKS5="off" \ 
+ENV SOCKS5=off \ 
     DANTE_CONF= \
     VPN_TYPE= \
     VPN_KEY=a01 \

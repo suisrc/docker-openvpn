@@ -2,6 +2,14 @@
 
 bin_home=`dirname $0`
 
+if [[ "$XRAY_AUTO" == "on" ]]; then
+    export XRAY_CONF=/xray
+    export SUCC_SHELL="bash $bin_home/xray build;$SUCC_SHELL"
+    export EXIT_SHELL="bash $bin_home/xray clean;$EXIT_SHELL"
+    echo "[surfshark] auto xray, set SUCC_SHELL: $SUCC_SHELL"
+    echo "[surfshark] auto xray, set EXIT_SHELL: $EXIT_SHELL"
+fi
+
 if [[ $VPN_TYPE == openvpn ]]; then
     echo "[surfshark] starting $VPN_TYPE..."
     # <remote-proto>, <remote-ip>, <remote-port>
