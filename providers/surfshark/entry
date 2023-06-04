@@ -9,7 +9,7 @@ if [[ "$XRAY_AUTO" == "on" ]]; then
     echo "[surfshark] auto xray, set SUCC_SHELL: $SUCC_SHELL"
     echo "[surfshark] auto xray, set EXIT_SHELL: $EXIT_SHELL"
     if [[ -z "$XRAY_TMPL" ]]; then
-        export XRAY_TMPL="$bin_home/xray.json"
+        export XRAY_TMPL="/etc/xray/config.json"
         echo "[surfshark] auto xray, set XRAY_TMPL: $XRAY_TMPL"
         echo "[surfshark] auto xray, default user id: $(cat $bin_home/xray.json | jq -r '.inbounds[0].settings.clients[0].id')"
     fi

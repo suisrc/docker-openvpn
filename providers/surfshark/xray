@@ -12,7 +12,7 @@
 #          POD_IP，  容器IP
 #          WG_PRIVATE_KEY, 私钥
 #          XRAY_TMPL, xray配置的模板， 会使用该模板分裂出多个链接配置
-#          模板中的配置： 10140(PORT)， <public-key>， <endpoint>， <private-key>
+#          模板中的配置： 9000(PORT)， <public-key>， <endpoint>， <private-key>
 # 
 
 # test
@@ -20,7 +20,7 @@
 # XRAY_KEY=tst XRAY_CNS=ch-zur,tw-tai POD_IP=127.0.0.1 XRAY_PORT=12301 bash providers/surfshark/xray build
 # XRAY_KEY=tst bash providers/surfshark/xray clean
 # XRAY_KEY=tst bash -c "bash providers/surfshark/xray clean;"
-# XRAY_PORT=10140 cat $XRAY_TMPL | jq -c 'del(.outbounds[0]) | .outbounds += [{"protocol": "freedom"}]' 
+# XRAY_PORT=9000 cat $XRAY_TMPL | jq -c 'del(.outbounds[0]) | .outbounds += [{"protocol": "freedom"}]' 
 
 build_xray_conf() {
   # 构建配置
@@ -28,13 +28,18 @@ build_xray_conf() {
     if [[ -z "$$XRAY_TMPL" ]]; then XRAY_TMPL=/etc/xray0.json; fi; # 默认模板
     if [[ "$XRAY_LOC0" != "off" ]]; then # 默认保留， 可以通过设置XRAY_LOC=off关闭
       echo "endpoint: 127.0.0.1, location: 本地(localhost), service-port: $XRAY_PORT";
-      cat $XRAY_TMPL | jq -c 'del(.outbounds[0]) | .outbounds += [{"protocol": "freedom"}]' > /xray/$XRAY_KEY-0.json;
+      cat $XRAY_TMPL | jq 'del (.outbounds) | .outbounds += [{"protocol": "freedom"}]' | sed -e "s|9000|$port|" > /xray/$XRAY_KEY-0.json;
       echo "~^${XRAY_KEY}0\.  $POD_IP:$XRAY_PORT;" > /ngx/$XRAY_KEY-0.tcp4;
     fi;
     for ((i=1; i<=${#cns[@]}; i++)); do port=$((${XRAY_PORT}+i));
       IFS=' ' read -r endpoint secret location <<< "$(bash `dirname $0`/tool ${cns[(($i-1))]} ip)";
       echo "endpoint: $endpoint, location: $location, service-port: $port";
-      cat $XRAY_TMPL | sed -e "s|10140|$port|" -e "s|<public-key>|$secret|" -e "s|<endpoint>|$endpoint:51820|" -e "s|<private-key>|${WG_PRIVATE_KEY}|" | jq -c > /xray/$XRAY_KEY-$i.json;
+      cat $XRAY_TMPL | \
+        jq 'del (.outbounds) | .outbounds += [{"protocol": "wireguard", "settings": {
+          "workers": 2, "secretKey": "<secret-key>", "address": ["10.14.0.2/32"],
+          "peers": [{ "publicKey": "<public-key>", "endpoint": "<endpoint>"}]}}]' | \
+        sed -e "s|9000|$port|" -e "s|<public-key>|$secret|" -e "s|<endpoint>|$endpoint:51820|" -e "s|<private-key>|${WG_PRIVATE_KEY}|" \
+      > /xray/$XRAY_KEY-$i.json;
       echo "~^$XRAY_KEY$i\.  $POD_IP:$port;" > /ngx/$XRAY_KEY-$i.tcp4;
     done;
   fi;
