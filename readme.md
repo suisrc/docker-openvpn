@@ -22,7 +22,9 @@ quay.io/suisrc/openwire
 
 容器对surfshark进行了支持
 
-## danet
+### danet
+
+```
 docker run --rm -it \
 --name openwire \
 --cap-add=NET_ADMIN \
@@ -36,8 +38,13 @@ docker run --rm -it \
 -p 1080:1080 \
 -e SOCKS5=on \
 suisrc/openwire:0.0.4
+```
 
-### xray(扩展，只有偶数版本号支持)
+### xray
+
+(扩展，只有偶数版本号支持)
+
+```
 docker run --rm -it \
 --name openwire \
 --cap-add=NET_ADMIN \
@@ -55,6 +62,7 @@ docker run --rm -it \
 -e XRAY_KEY=tst \
 -e XRAY_CNS=jp-tok,hk-hkg \
 suisrc/openwire:0.0.4
+```
 
 docker exec -it openwire /bin/sh
 

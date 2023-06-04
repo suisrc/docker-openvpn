@@ -24,6 +24,7 @@
 
 build_xray_conf() {
   # 构建配置
+  echo "[surfshark] build xray conf";
   if [[ -n "$XRAY_KEY" ]]; then mkdir -p /xray /ngx; cns=(${XRAY_CNS//,/ });
     if [[ -z "$$XRAY_TMPL" ]]; then XRAY_TMPL=/etc/xray0.json; fi; # 默认模板
     if [[ "$XRAY_LOC0" != "off" ]]; then # 默认保留， 可以通过设置XRAY_LOC=off关闭
@@ -47,6 +48,7 @@ build_xray_conf() {
 
 clean_xray_conf() {
   # 清除配置
+  echo "[surfshark] clean xray conf";
   if [[ -n "$XRAY_KEY" ]]; then rm -f /xray/$XRAY_KEY-*.tcp4 /ngx/$XRAY_KEY-*.tcp4; fi;
 }
 
