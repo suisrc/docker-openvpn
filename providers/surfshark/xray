@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# 特殊文件夹： /xray, 所有的xray配置, export XRAY_CONF=/xray
+#            /ngx,  所有的tcp4配置, 可以使用suisrc/openresty:1.25.0-ngx-1, 自动完成配置
+
+# 这是一个未经验证的脚本，用于配置在surfshark场景下的快速配置
+# 其本意是在一个vps中快速部署除当前节点的多个节点，前提是部署的节点需要在墙外
+# 必要条件： XRAY_KEY, 一个关键字，xxx0.domain.com, xxx1.domain.com会被生成
+#          XRAY_CNS, 国家列表
+#          XRAY_PORT, 起始端口
+#          XRAY_LOC0, 本地代理， 默认保留
+#          POD_IP，  容器IP
+#          WG_PRIVATE_KEY, 私钥
+#          /etc/xray0.json， xray配置的模板， 会使用该模板分裂出多个链接配置
+#          模板中的配置： <service-port>， <public-key>， <endpoint>， <private-key>
+# 
+
+# test
+# XRAY_KEY=tst XRAY_CNS=ch-zur,tw-tai POD_IP=127.0.0.1 XRAY_PORT=12301 bash providers/surfshark/xray build
+# XRAY_KEY=tst bash providers/surfshark/xray clean
+
+build_xray_conf() {
+  # 构建配置
+  if [[ -n "$XRAY_KEY" ]]; then mkdir -p /xray /ngx; cns=(${XRAY_CNS//,/ });
+    if [[ "$XRAY_LOC0" != "off" ]]; then # 默认保留， 可以通过设置XRAY_LOC=off关闭
+      echo "endpoint: 127.0.0.1, location: 本地(localhost), service-port: $XRAY_PORT";
+      echo "~^${XRAY_KEY}0\.  $POD_IP:$XRAY_PORT;" > /ngx/$XRAY_KEY-0.tcp4;
+    fi;
+    for ((i=1; i<=${#cns[@]}; i++)); do port=$((${XRAY_PORT}+i));
+      IFS=' ' read -r endpoint secret location <<< "$(bash `dirname $0`/tool ${cns[(($i-1))]} ip)";
+      cat /etc/xray0.json | sed -e "s|<service-port>|$port|" -e "s|<public-key>|$secret|" -e "s|<endpoint>|$endpoint:51820|" -e "s|<private-key>|${WG_PRIVATE_KEY}|" > /xray/$XRAY_KEY-$i.json;
+      echo "endpoint: $endpoint, location: $location, service-port: $port";
+      echo "~^$XRAY_KEY$i\.  $POD_IP:$port;" > /ngx/$XRAY_KEY-$i.tcp4;
+    done;
+  fi;
+}
+
+clean_xray_conf() {
+  # 清除配置
+  if [[ -n "$XRAY_KEY" ]]; then rm -f /xray/$XRAY_KEY-*.tcp4 /ngx/$XRAY_KEY-*.tcp4; fi;
+}
+
+
+if [[ "$1" == "build" ]]; then
+  build_xray_conf
+elif [[ "$1" == "clean" ]]; then
+  clean_xray_conf
+else
+  echo "Usage: $0 build|clean"
+  exit 1
+fi
+
+

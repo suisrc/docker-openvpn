@@ -3,7 +3,12 @@ FROM suisrc/xray:1.8.1
 # 版本单数使用base， 双数使用xray
 
 # f1.json,f2.json...可以同时启动多个xray服务
-ENV XRAY_CONF=
+ENV XRAY_CONF= \
+    XRAY_KEY= \
+    XRAY_CNS= \
+    XRAY_LOC0=on \
+    XRAY_PORT=12301
+    
 
 # FROM alpine:3.18
 # LABEL maintainer="suisrc@outlook.com"

@@ -2,6 +2,10 @@
 
 # ENV VPN_TYPE=openvpn \
 
+if [[ -z "$POD_IP" ]]; then
+    export POD_IP=$(hostname -i) # 获取容器IP
+fi
+
 if [[ "$VPN_TYPE" == "openvpn" ]]; then
     echo "[vpn-entry] starting openvpn..."
     exec vpn-entry-ov # openvpn
