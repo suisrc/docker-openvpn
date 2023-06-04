@@ -91,11 +91,13 @@ openvpn --config "$OV_CONF_PATH" "--auth-user-pass" "$OV_USER_PASS" &
 openvpn_pid=$!
 
 # 显示连接状况
-sleep 2
-if ! kill -0 "$openvpn_pid" 2>/dev/null; then
-    echo "openvpn process not found, openvpn start failed."
-    exit 1
-fi
+while ! -e /sys/class/net/tun0; do
+    sleep 2 # 等待tun0出现，如果没有出现，说明openvpn启动失败
+    if ! kill -0 "$openvpn_pid" 2>/dev/null; then
+        echo "openvpn process not found, openvpn start failed."
+        exit 1
+    fi
+done
 echo "" && echo "tun0 is installed"
 
 trap cleanup TERM
