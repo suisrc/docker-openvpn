@@ -34,9 +34,13 @@ if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create openvpn conf by shell: $WG_CONF_SHELL"
     bash -c "$WG_CONF_SHELL"
 fi
-
+# 通过网络获取私钥
+if  [[ $WG_PRIVATE_KEY =~ ^http(s)?://  ]]; then
+    echo "get wireguard private key form internet..."
+    export WG_PRIVATE_KEY=$(curl -ksSL "$WG_PRIVATE_KEY")
+fi
 # if file is prefix http, download it.
-if [[ $WG_CONF_PATH == http* ]]; then
+if [[ $WG_CONF_PATH =~ ^http(s)?:// ]]; then
     echo "downloading wireguard conf file: $WG_CONF_PATH"
     curl -ksSL "$WG_CONF_PATH" -o /vpn/wireguard.conf
     WG_CONF_PATH=/vpn/wireguard.conf

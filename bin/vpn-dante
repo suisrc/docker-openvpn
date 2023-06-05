@@ -6,7 +6,7 @@
 # sockd -f "$DANTE_CONF" -D
 
 # if file is prefix http, download it.
-if [[ $DANTE_CONF == http* ]]; then
+if [[ $DANTE_CONF =~ ^http(s)?:// ]]; then
     echo "downloading dante conf file: $DANTE_CONF"
     curl -ksSL "$DANTE_CONF" -o /vpn/sockd.conf
     DANTE_CONF=/vpn/sockd.conf

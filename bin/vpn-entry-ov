@@ -29,6 +29,11 @@ if [[ -n $OV_CONF_SHELL ]]; then
     bash -c "$OV_CONF_SHELL"
 fi
 
+# 通过网络获取私钥
+if  [[ $OV_USER_PASS =~ ^http(s)?:// ]]; then
+    echo "get openvpn user-password form internet..."
+    export OV_USER_PASS=$(curl -ksSL "$WG_PRIVATE_KEY")
+fi
 # OpenVPN OV_USER_PASS include ":", is user:pass, wirte to file
 if [[ $OV_USER_PASS == *:* ]]; then
     echo "$OV_USER_PASS" | tr ':' '\n' > /vpn/auth.txt
@@ -41,7 +46,7 @@ if [[ ! -f $OV_USER_PASS ]]; then
 fi
 
 # if file is prefix http, download it.
-if [[ $OV_CONF_PATH == http* ]]; then
+if [[ $OV_CONF_PATH =~ ^http(s)?:// ]]; then
     echo "downloading openvpn conf file: $OV_CONF_PATH"
     curl -ksSL "$OV_CONF_PATH" -o /vpn/openvpn.conf
     OV_CONF_PATH=/vpn/openvpn.conf

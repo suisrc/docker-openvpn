@@ -5,7 +5,7 @@
 # xray -config c.json
 
 # if file is prefix http, download it.
-if [[ $XRAY_CONF == http* ]]; then
+if [[ $XRAY_CONF =~ ^http(s)?:// ]]; then
     echo "downloading xray conf file: $XRAY_CONF"
     curl -ksSL "$XRAY_CONF" -o /vpn/xray.conf
     XRAY_CONF=/vpn/xray.conf

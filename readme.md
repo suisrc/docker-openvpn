@@ -56,15 +56,23 @@ docker run --rm -it \
 -e TESTIP_URI=https://ipinfo.io \
 -v /dev/net/tun:/dev/net/tun \
 -p 9010:9000 \
--p 9011:9001 \
--p 9012:9002 \
 -e XRAY_AUTO=on \
 -e XRAY_KEY=tst \
--e XRAY_CNS=jp-tok,hk-hkg \
 suisrc/openwire:0.0.4
 ```
 
+```
+# 默认client id
+a8ea26aa-644f-4488-94e6-19e20547f389
+
+# 区域扩展
+-p 9011:9001 \
+-p 9012:9002 \
+-e XRAY_CNS=jp-tok,hk-hkg \
+
+# 调试
 docker exec -it openwire /bin/sh
+```
 
 进行供应商扩展时候，需要再 $provider 目录下提供 entry 文件
 
