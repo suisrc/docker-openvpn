@@ -1,19 +1,18 @@
-FROM suisrc/xray:1.8.1 
-# alpine:3.18 | suisrc/xray:1.8.1 
-# 版本单数使用base， 双数使用xray
+# FROM suisrc/xray:1.8.1 
+# # alpine:3.18 | suisrc/xray:1.8.1 
+# # 版本单数使用base， 双数使用xray
+# 
+# # f1.json,f2.json...可以同时启动多个xray服务
+# ENV XRAY_CONF= \
+#     XRAY_KEY= \
+#     XRAY_CNS= \
+#     XRAY_TMPL= \
+#     XRAY_LOC0=on \
+#     XRAY_PORT=9000 \
+#     XRAY_AUTO=off
 
-# f1.json,f2.json...可以同时启动多个xray服务
-ENV XRAY_CONF= \
-    XRAY_KEY= \
-    XRAY_CNS= \
-    XRAY_TMPL= \
-    XRAY_LOC0=on \
-    XRAY_PORT=9000 \
-    XRAY_AUTO=off
-    
-
-# FROM alpine:3.18
-# LABEL maintainer="suisrc@outlook.com"
+FROM alpine:3.18
+LABEL maintainer="suisrc@outlook.com"
 
 RUN apk add --no-cache \
     curl jq bash \
