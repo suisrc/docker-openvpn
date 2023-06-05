@@ -16,7 +16,7 @@ FROM alpine:3.18 as runner
 
 LABEL maintainer="suisrc@outlook.com"
 
-RUN apk add --no-cache tzdata  ca-certificates &&\
+RUN apk add --no-cache tzdata ca-certificates jq &&\
     mkdir -p /var/log/xray /usr/share/xray /etc/xray/
 
 COPY --from=builder /tmp/xray /usr/local/bin/xray
@@ -25,4 +25,6 @@ COPY --from=builder /tmp/geosite.dat /usr/share/xray/geosite.dat
 COPY config.json /etc/xray/config.json
 
 ENV TZ=Asia/Shanghai
+ENV PRE_SHELL=
+ADD pre-entry /usr/local/bin/pre-entry
 CMD [ "xray", "-config", "/etc/xray/config.json" ]

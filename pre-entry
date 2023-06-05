@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$PRE_SHELL" != "" ]; then
+    eval "$PRE_SHELL"
+fi
+
+exec "$@"
