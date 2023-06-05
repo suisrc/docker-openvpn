@@ -21,10 +21,9 @@ fi
 
 #######################################################
 # start xray socks5,tcp,http,vmess... proxy
-# if [[ -n "$XRAY_CONF" ]]; then
-#     vpn-xray
-# fi
-
+if [[ -n "$XRAY_CONF" ]] && which xray >/dev/null; then
+    vpn-xray
+fi
 
 #######################################################
 echo "vpn entrypoint done."
