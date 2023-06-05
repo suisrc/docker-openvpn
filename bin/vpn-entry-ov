@@ -26,7 +26,7 @@ cleanup() {
 # 执行配置脚本，在启动前执行
 if [[ -n $OV_CONF_SHELL ]]; then
     echo "create openvpn conf by shell: $OV_CONF_SHELL"
-    bash -c "$OV_CONF_SHELL"
+    eval "$OV_CONF_SHELL"
 fi
 
 # 通过网络获取私钥
@@ -83,7 +83,7 @@ fi
 # 修复配置脚本，在启动前执行
 if [[ -n $OV_CONF_SHEND ]]; then
     echo "fix openvpn conf by shell: $OV_CONF_SHEND"
-    bash -c "$OV_CONF_SHEND"
+    eval "$OV_CONF_SHEND"
 fi
 
 # 打印启动使用的配置
@@ -119,7 +119,7 @@ if [[ -n "$HEALTH_SHELL" ]]; then
     # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
     # 如果$openvpn_pid进程不存在，说明openvpn已经退出
     while kill -0 "$openvpn_pid" 2>/dev/null; do
-        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5 && eval "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     wait $openvpn_pid

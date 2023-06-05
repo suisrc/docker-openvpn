@@ -30,7 +30,7 @@ fi
 
 if [[ -n "$EXIT_SHELL" ]]; then
   echo "[vpn-stop] exit shell: $EXIT_SHELL"
-  bash -c "$EXIT_SHELL"
+  eval "$EXIT_SHELL"
 fi
 
 # VPN_TYPE=surfshark-openvpn bash ./bin/vpn-stop

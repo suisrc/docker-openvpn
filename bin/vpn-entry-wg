@@ -32,7 +32,7 @@ cleanup() {
 # 执行配置脚本，在启动前执行
 if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create openvpn conf by shell: $WG_CONF_SHELL"
-    bash -c "$WG_CONF_SHELL"
+    eval "$WG_CONF_SHELL"
 fi
 # 通过网络获取私钥
 if  [[ $WG_PRIVATE_KEY =~ ^http(s)?://  ]]; then
@@ -97,7 +97,7 @@ ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
 
 if [[ -n "$WG_CONF_SHEND" ]]; then
     echo "fix wireguard conf shell: $WG_CONF_SHEND"
-    bash -c "$WG_CONF_SHEND"
+    eval "$WG_CONF_SHEND"
 fi
 
 # 处理 SKIPPED_IPS
@@ -136,7 +136,7 @@ if [[ -n "$HEALTH_SHELL" ]]; then
     # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
     # 如果/sys/class/net/wg0不存在，说明wireguard已经退出
     while [[ -e /sys/class/net/wg0 ]]; do
-        sleep 5 && bash -c "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        sleep 5 && eval "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
     done
 else
     # monitor wg-quick down wg0， 检查wg0是否卸载
