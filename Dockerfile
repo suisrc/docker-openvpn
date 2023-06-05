@@ -8,8 +8,7 @@ ENV XRAY_CONF= \
     XRAY_CNS= \
     XRAY_TMPL= \
     XRAY_LOC0=on \
-    XRAY_PORT=9000 \
-    XRAY_AUTO=off
+    XRAY_PORT=9000
 
 # FROM alpine:3.18
 # LABEL maintainer="suisrc@outlook.com"

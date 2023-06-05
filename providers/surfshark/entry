@@ -2,7 +2,7 @@
 
 bin_home=`dirname $0`
 
-if [[ "$XRAY_AUTO" == "on" ]]; then
+if [[ -n "$XRAY_KEY" ]]; then
     export XRAY_CONF=/xray
     export SUCC_SHELL="bash $bin_home/xray build;$SUCC_SHELL"
     export EXIT_SHELL="bash $bin_home/xray clean;$EXIT_SHELL"

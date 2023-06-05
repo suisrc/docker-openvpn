@@ -56,7 +56,6 @@ docker run --rm -it \
 -e TESTIP_URI=https://ipinfo.io \
 -v /dev/net/tun:/dev/net/tun \
 -p 9010:9000 \
--e XRAY_AUTO=on \
 -e XRAY_KEY=tst \
 suisrc/openwire:0.0.4
 ```
