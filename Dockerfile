@@ -1,7 +1,7 @@
 FROM alpine:3.18
 
-RUN apk add --no-cache curl bash jq openvpn dante-server
-ADD ["openvpn.demo.ovpn", "sockd.default.conf", "/vpn/"]
+RUN apk add --no-cache curl bash jq openvpn 
+ADD ["openvpn.demo.ovpn", "/vpn/"]
 
 WORKDIR /vpn
 
@@ -9,16 +9,8 @@ WORKDIR /vpn
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
 # CMD curl -f http://localhost:1080/ || exit 1
 
-ENV SOCKS5="off" \ 
-    OPVPN_AUTH= \
-    OPVPN_CONF= \
-    OPSKIP_IPS= \
-    DANTE_CONF= \
-    CONF_SHELL= \
-    SUCC_SHELL= \
-    EXIT_SHELL= \
-    HEALTH_SHELL= \
-    TESTIP_URI=
+ENV OV_USER_PASS= \
+    OV_CONF_PATH=
 
-ADD [ "entry", "p2p", "dohip", "myip", "/usr/bin/" ]
+ADD [ "entry", "dohip", "myip", "/usr/local/bin/" ]
 CMD ["entry"]

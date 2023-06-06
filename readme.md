@@ -1,20 +1,28 @@
 # 说明
 
-openvpn + dante
+这就是一个简单的open工具，不提供任何额外的功能，需要需要功能扩展，推荐 openwire 分支内容  
+openwire： openvpn + wireguard 集成的client工具，甚至集成了xray, dante等代理工具等  
 
-## openvpn
-openvpn是一个开源的VPN软件，可以用来创建点对点或者站点到站点的连接，它支持自定义安全协议以及混合模式的虚拟专用网络。
+OV_USER_PASS: 认证文件的位置  
+```
+username
+password
+```
 
-## dante
-dante是一个SOCKS服务器，支持版本4和版本5，可以用来做代理服务器。
-
-## 变量
-
-ENV SOCKS5="off" \ # 内部代理  
-    OPVPN_AUTH= \  # 认证信息, user:pass  
-    OPVPN_CONF= \  # 配置文件, file or uri
-    OPSKIP_IPS= \  # 跳过的IP, 内部局域网IP
-    DANTE_CONF= \  # socks5配置文件, file or uri
-    SUCC_SHELL= \  # 启动成功后执行的命令
-    HEALTH_URI= \  # 健康检查接口，不推荐使用
-    TESTIP_URI="https://ipinfo.io"
+OV_CONF_PATH: 配置文件的位置  
+```
+client
+dev tun
+proto udp
+remote example.com 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca ca.crt
+cert client.crt
+key client.key
+comp-lzo
+verb 3
+log /vpn/log/openvpn.log
+```

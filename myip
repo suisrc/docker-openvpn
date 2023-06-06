@@ -3,6 +3,11 @@
 ## ./myip
 ## where is my ip, 获取当前节点的公网ip地址， 包含了国家信息
 
+if [[ "$1" == "ip" ]]; then
+    echo `curl -sSL https://ipinfo.io/ip`
+    exit 0
+fi
+
 ## where is my ip, by cloudflare
 ## https://cloudflare.com/cdn-cgi/trace
 xbody=$(curl -sSL -w "code=%{http_code}" "https://1.1.1.1/cdn-cgi/trace")
@@ -19,3 +24,4 @@ fi
 #     echo "ip:$(echo "$xbody" | grep \"ip\" | cut -d\" -f4)"
 # fi
 # # echo "xbody: $xbody"
+
