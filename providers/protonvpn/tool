@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# bash protonvpn/tool jp-free-06.protonvpn.net
+
+host=$1
+
+if [[ "$2" == "ip" ]]; then
+    ip=`curl -sSL -H 'Accept: application/dns-json' https://1.1.1.1/dns-query\?type\=A\&name\=$host \
+      | jq '.Answer | to_entries[] | .value.data' | head -n 1 | sed 's/"//g'`
+    echo "$ip"
+else 
+    echo "$host"
+fi
+exit 0

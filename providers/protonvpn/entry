@@ -1,0 +1,30 @@
+#!/bin/bash
+
+bin_home=`dirname $0`
+
+if [[ -n "$XRAY_KEY" ]]; then
+    export XRAY_CONF=/xray
+    export SUCC_SHELL="bash $bin_home/xray build;$SUCC_SHELL"
+    export EXIT_SHELL="bash $bin_home/xray clean;$EXIT_SHELL"
+    echo "[protonvpn] auto xray, set SUCC_SHELL: $SUCC_SHELL"
+    echo "[protonvpn] auto xray, set EXIT_SHELL: $EXIT_SHELL"
+    if [[ -z "$XRAY_TMPL" ]]; then
+        export XRAY_TMPL="/etc/xray/config.json"
+        echo "[protonvpn] auto xray, set XRAY_TMPL: $XRAY_TMPL"
+        echo "[protonvpn] auto xray, default user id: $(cat $XRAY_TMPL | jq -r '.inbounds[0].settings.clients[0].id')"
+    fi
+fi
+
+if [[ $VPN_TYPE == openvpn ]]; then
+    echo "[protonvpn] starting $VPN_TYPE..."
+    cp -f $bin_home/client.ovpn /vpn/openvpn.conf
+    if [[ -n $VPN_REGION ]]; then
+        endpoint=$(bash $bin_home/tool $VPN_REGION)
+        echo "region: $VPN_REGION, endpoint: $endpoint"
+        sed -i -e "s|<remote-ip>|$endpoint|g" /vpn/openvpn.conf
+    fi
+    exec vpn-entry-ov # openvpn
+fi
+
+echo "[protonvpn] unknown vpn: $VPN_TYPE"
+sleep 5 # 防止循环重启， 无法查看日志
