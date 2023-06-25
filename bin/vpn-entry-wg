@@ -119,10 +119,10 @@ fi
 sleep 1 && wg show
 echo "" && echo "wg0 is installed"
 
-trap 'vpn-stop' TERM
+# trap 'vpn-stop' TERM
 # wait /sys/class/net/wg0
 #=========================================================
 # 脚本启动成功后执行的内容
 vpn-poststart wireguard
 # 等待进程完成
-exec vpn-wait
+vpn-wait

@@ -4,12 +4,11 @@ cleanup() {
     vpn-stop
 }
 
-
 if [[ "$HEALTH_SHELL" == "none" ]]; then
     # 使用 </pause 执行中断
     if [ ! -e /pause ]; then
-        trap cleanup TERM
         echo "[vpn-wait] wait by fifo"
+        trap cleanup TERM
         mkfifo /pause
         </pause # 中断
         rm -f  /pause
@@ -18,8 +17,8 @@ if [[ "$HEALTH_SHELL" == "none" ]]; then
         echo "[vpn-wait] restart vpn, ignore exit" # 重启
     fi
 elif [[ $VPN_TYPE == *openvpn ]]; then
-    trap cleanup TERM
     echo "[vpn-wait] wait by openvpn"
+    trap cleanup TERM
     # 执行健康检查脚本
     if [[ -n "$HEALTH_SHELL" ]]; then
         # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
@@ -34,8 +33,8 @@ elif [[ $VPN_TYPE == *openvpn ]]; then
     fi
     echo "[vpn-wait] exit by openvpn"
 elif [[ $VPN_TYPE == *wireguard ]]; then
-    trap cleanup TERM
     echo "[vpn-wait] wait by wireguard"
+    trap cleanup TERM
     # 执行健康检查脚本
     if [[ -n "$HEALTH_SHELL" ]]; then
         # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
@@ -50,7 +49,8 @@ elif [[ $VPN_TYPE == *wireguard ]]; then
         # while true; do sleep 5 && echo `date`; done
     fi
     echo "[vpn-wait] exit by wireguard"
-else 
+else
     echo "[vpn-wait] unknown vpn: $VPN_TYPE"
+    cleanup
 fi
 
