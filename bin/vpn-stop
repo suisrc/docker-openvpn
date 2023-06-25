@@ -33,4 +33,18 @@ if [[ -n "$EXIT_SHELL" ]]; then
   eval "$EXIT_SHELL"
 fi
 
+# 执行重启相关内容， 只有在 VPN_WAIT="none" 有效
+if [[ "$1" == "-r" && "$HEALTH_SHELL"=="none" ]]; then
+  echo "[vpn-stop] restart vpn..."
+  # 动态修改VPN所在区域， 用于重启时切换区域
+  if [[ -n $2 ]]; then export VPN_REGION="$2"; fi
+  exec vpn-entry
+elif [[ -e /pause ]]; then
+  echo "[vpn-stop] stop vpn by fifo..."
+  # 向管道写入 stop 会触发终止中断
+  echo "stop" >/pause
+else
+  echo "[vpn-stop] stop vpn..."
+fi
+
 # VPN_TYPE=surfshark-openvpn bash ./bin/vpn-stop

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [[ "$HEALTH_SHELL" == "none" ]]; then
+    # 使用 </pause 执行中断
+    if [ ! -e /pause ]; then
+        mkfifo /pause
+        </pause # 中断
+        rm -f  /pause
+        # 退出
+        echo "[vpn-wait] exit vpn by fifo"
+    else 
+        # 重启
+        echo "[vpn-wait] restart vpn, ignore exit"
+    fi
+elif [[ $VPN_TYPE == *openvpn ]]; then
+    # 执行健康检查脚本
+    if [[ -n "$HEALTH_SHELL" ]]; then
+        # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
+        # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
+        # 如果$openvpn_pid进程不存在，说明openvpn已经退出
+        while kill -0 "$openvpn_pid" 2>/dev/null; do
+            sleep 5 && eval "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        done
+    else
+        wait $openvpn_pid
+        # --wait
+    fi
+    echo "[vpn-wait] exit openvpn"
+elif [[ $VPN_TYPE == *wireguard ]]; then
+    # 执行健康检查脚本
+    if [[ -n "$HEALTH_SHELL" ]]; then
+        # 默认是5s检查一次,但是可以在 HEALTH_SHELL 中增加 sleep x 来调整检查频率
+        # 推荐采用 5+25 的方式, 在 HEALTH_SHELL 中 sleep 25
+        # 如果/sys/class/net/wg0不存在，说明wireguard已经退出
+        while [[ -e /sys/class/net/wg0 ]]; do
+            sleep 5 && eval "$HEALTH_SHELL" # 不忽略异常，异常会触发重启
+        done
+    else
+        # monitor wg-quick down wg0， 检查wg0是否卸载
+        while [[ -e /sys/class/net/wg0 ]]; do sleep 5; done
+        # while true; do sleep 5 && echo `date`; done
+    fi
+    echo "[vpn-wait] exit wireguard"
+else 
+    echo "[vpn-wait] unknown vpn: $VPN_TYPE"
+fi
+
