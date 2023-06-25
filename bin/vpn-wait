@@ -1,8 +1,14 @@
 #!/bin/bash
 
+cleanup() {
+    vpn-stop
+}
+
+
 if [[ "$HEALTH_SHELL" == "none" ]]; then
     # 使用 </pause 执行中断
     if [ ! -e /pause ]; then
+        trap cleanup TERM
         echo "[vpn-wait] wait by fifo"
         mkfifo /pause
         </pause # 中断
@@ -12,6 +18,7 @@ if [[ "$HEALTH_SHELL" == "none" ]]; then
         echo "[vpn-wait] restart vpn, ignore exit" # 重启
     fi
 elif [[ $VPN_TYPE == *openvpn ]]; then
+    trap cleanup TERM
     echo "[vpn-wait] wait by openvpn"
     # 执行健康检查脚本
     if [[ -n "$HEALTH_SHELL" ]]; then
@@ -27,6 +34,7 @@ elif [[ $VPN_TYPE == *openvpn ]]; then
     fi
     echo "[vpn-wait] exit by openvpn"
 elif [[ $VPN_TYPE == *wireguard ]]; then
+    trap cleanup TERM
     echo "[vpn-wait] wait by wireguard"
     # 执行健康检查脚本
     if [[ -n "$HEALTH_SHELL" ]]; then

@@ -101,10 +101,10 @@ while [[ ! -e /sys/class/net/tun0 ]]; do
 done
 echo "" && echo "tun0 is installed"
 
-trap 'vpn-stop' TERM
+# trap 'vpn-stop' TERM
 # wait $openvpn_pid
 #=========================================================
 # 脚本启动成功后执行的内容
 vpn-poststart openvpn
 # 等待进程完成
-openvpn_pid=$openvpn_pid vpn-wait
+openvpn_pid=$openvpn_pid exec vpn-wait
