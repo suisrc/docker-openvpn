@@ -87,7 +87,7 @@ echo "using openvpn conf file: $OV_CONF_PATH"
 echo "using openvpn auth file: $OV_USER_PASS"
 
 # OpenVPN Running.
-mkdir /vpn/log
+mkdir -f /vpn/log
 openvpn --config "$OV_CONF_PATH" "--auth-user-pass" "$OV_USER_PASS" &
 openvpn_pid=$!
 
