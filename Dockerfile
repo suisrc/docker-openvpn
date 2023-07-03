@@ -15,7 +15,7 @@ WORKDIR /vpn
 ENV WG_CONF_SHELL=\
     INOTIFY_EVENT="create"
 
-ADD [ "entry", "dohip", "myip", "wg-reload", "/usr/local/bin/" ]
+ADD [ "entry", "watch-conf", "dohip", "myip", "wg-reload", "/usr/local/bin/" ]
 CMD ["entry"]
 
 # STOPSIGNAL SIGINT
