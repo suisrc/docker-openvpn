@@ -4,6 +4,12 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+cleanup() {
+    echo "wg0 is down"
+    wg-quick down wg0
+    exit 0
+}
+
 # 执行配置脚本，在启动前执行
 if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create conf by shell: $WG_CONF_SHELL"
@@ -21,12 +27,7 @@ fi
 # sleep 1 && wg show
 echo "" && echo "wg0 is up"
 
-cleanup() {
-    wg-quick down wg0
-    echo "wg0 is down"
-}
-
-trap cleanup INT
+trap cleanup TERM
 # if [ ! -e /pause ]; then mkfifo /pause; fi
 # </pause # 中断
 

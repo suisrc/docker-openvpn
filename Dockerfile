@@ -18,4 +18,4 @@ ENV WG_CONF_SHELL=\
 ADD [ "entry", "dohip", "myip", "wg-reload", "/usr/local/bin/" ]
 CMD ["entry"]
 
-STOPSIGNAL SIGINT
+# STOPSIGNAL SIGINT
