@@ -4,12 +4,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-cleanup() {
-    echo "cleaning up..."
-    wg-quick down wg0
-    # echo "stop" >/pause
-}
-
 # 执行配置脚本，在启动前执行
 if [[ -n "$WG_CONF_SHELL" ]]; then
     echo "create conf by shell: $WG_CONF_SHELL"
@@ -25,12 +19,13 @@ fi
 
 # 显示连接状况
 # sleep 1 && wg show
-echo "" && echo "wg0 is installed"
+echo "" && echo "wg0 is up"
 
-trap cleanup TERM
+# trap cleanup TERM
 # if [ ! -e /pause ]; then mkfifo /pause; fi
 # </pause # 中断
 
+# inotifywait -m /path/to/watched/directory
 # modify,move,create,delete
 inotifywait -e create -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireguard/ | while read date time; do
     echo "At ${time} on ${date}, config file update detected."
@@ -42,3 +37,7 @@ inotifywait -e create -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireg
     wg syncconf wg0 <(wg-quick strip wg0)
     # sleep 1 && wg show
 done
+
+# cleanup...
+wg-quick down wg0
+echo "wg0 is down"
