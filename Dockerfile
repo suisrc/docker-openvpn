@@ -12,7 +12,8 @@ ADD ["wg0.conf", "wg1.conf", "/vpn/"]
 
 WORKDIR /vpn
 
-ENV WG_CONF_SHELL=
+ENV WG_CONF_SHELL=\
+    INOTIFY_EVENT="create"
 
 ADD [ "entry", "dohip", "myip", "wg-reload", "/usr/local/bin/" ]
 CMD ["entry"]
