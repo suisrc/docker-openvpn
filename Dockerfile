@@ -8,7 +8,7 @@ RUN apk add --no-cache curl bash jq iptables wireguard-tools
 # [[ $proto == -4 ]] && cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1
 RUN sed -i "s/\[\[ \$proto == -4 ]]/\[\[ \$proto == -4 \&\& \$(sysctl net.ipv4.conf.all.src_valid_mark | awk '{print \$3}') != 1 ]]/g" /usr/bin/wg-quick
 
-ADD ["wireguard.demo.conf", "/vpn/"]
+ADD ["wg0.conf", "wg1.conf", "/vpn/"]
 
 WORKDIR /vpn
 
