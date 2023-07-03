@@ -31,7 +31,8 @@ trap cleanup TERM
 # if [ ! -e /pause ]; then mkfifo /pause; fi
 # </pause # 中断
 
-inotifywait -e modify,move,create,delete -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireguard/ | while read date time; do
+# modify,move,create,delete
+inotifywait -e create -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireguard/ | while read date time; do
     echo "At ${time} on ${date}, config file update detected."
     if [[ ! -e /sys/class/net/wg0 ]]; then
         echo "wg0 not found, wireguard down."
