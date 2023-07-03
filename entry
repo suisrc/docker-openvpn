@@ -7,8 +7,19 @@ set -o pipefail
 cleanup() {
     echo "cleaning up..."
     wg-quick down wg0
+    if [[ "$RELAY_NETINF" != "off" ]]; then
+        echo "wg0 is relay server, stop forwarding traffic from wg0 to $RELAY_NETINF"
+        iptables -D FORWARD -i wg0 -o $RELAY_NETINF -j ACCEPT
+        iptables -D FORWARD -i $RELAY_NETINF -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+        iptables -t nat -D POSTROUTING -o $RELAY_NETINF -j MASQUERADE
+    fi
+    echo "stop" >/pause
 }
 
+if [[ "$WG_CONF_PATH" != "/etc/wireguard/wg0.conf" ]]; then
+    # ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
+    cp -f "$WG_CONF_PATH" /etc/wireguard/wg0.conf
+fi
 echo "using wireguard conf file: $WG_CONF_PATH"
 
 wg-quick up wg0
@@ -21,7 +32,18 @@ fi
 sleep 1 && wg show
 echo "" && echo "wg0 is installed"
 
-trap cleanup TERM
+# 判定是否是中继服务器, 中继服务器需要转发流量从wg0到eth0
+# RELAY_INTERF=eth0
+if [[ "$RELAY_INTERF" != "off" ]]; then
+    echo "wg0 is relay server, forwarding traffic from wg0 to $RELAY_NETINF"
+    iptables -A FORWARD -i wg0 -o $RELAY_NETINF -j ACCEPT
+    iptables -A FORWARD -i $RELAY_NETINF -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    iptables -t nat -A POSTROUTING -o $RELAY_NETINF -j MASQUERADE
+fi
 
-while [[ -e /sys/class/net/wg0 ]]; do sleep 5; done
+trap cleanup TERM
+if [ ! -e /pause ]; then
+    mkfifo /pause
+fi
+</pause # 中断
 
