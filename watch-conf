@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# inotifywait -m /path/to/watched/directory
+# modify,move,create,delete
+inotifywait -e $INOTIFY_EVENT -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireguard/ | while read date time; do
+    echo "At ${time} on ${date}, wireguard conf update detected."
+    wg syncconf wg0 <(wg-quick strip wg0)
+    # sleep 1 && wg show
+done
