@@ -21,7 +21,12 @@ fi
 # sleep 1 && wg show
 echo "" && echo "wg0 is up"
 
-# trap cleanup TERM
+cleanup() {
+    wg-quick down wg0
+    echo "wg0 is down"
+}
+
+trap cleanup TERM
 # if [ ! -e /pause ]; then mkfifo /pause; fi
 # </pause # 中断
 
@@ -33,6 +38,3 @@ inotifywait -e $INOTIFY_EVENT -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /e
     # sleep 1 && wg show
 done
 
-# cleanup...
-wg-quick down wg0
-echo "wg0 is down"
