@@ -1,6 +1,6 @@
 FROM alpine:3.18
 
-RUN apk add --no-cache curl bash jq iptables wireguard-tools
+RUN apk add --no-cache curl bash jq iptables wireguard-tools inotify-tools
 
 # ?? ip6tables nftables
 
@@ -12,8 +12,7 @@ ADD ["wg0.conf", "wg1.conf", "/vpn/"]
 
 WORKDIR /vpn
 
-ENV WG_CONF_PATH="/vpn/wg0.conf" \
-    RELAY_NETINF="off"
+ENV WG_CONF_SHELL=
 
 ADD [ "entry", "dohip", "myip", "wg-reload", "/usr/local/bin/" ]
 CMD ["entry"]

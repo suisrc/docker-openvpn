@@ -7,43 +7,37 @@ set -o pipefail
 cleanup() {
     echo "cleaning up..."
     wg-quick down wg0
-    if [[ "$RELAY_NETINF" != "off" ]]; then
-        echo "wg0 is relay server, stop forwarding traffic from wg0 to $RELAY_NETINF"
-        iptables -D FORWARD -i wg0 -o $RELAY_NETINF -j ACCEPT
-        iptables -D FORWARD -i $RELAY_NETINF -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-        iptables -t nat -D POSTROUTING -o $RELAY_NETINF -j MASQUERADE
-    fi
-    echo "stop" >/pause
+    # echo "stop" >/pause
 }
 
-if [[ "$WG_CONF_PATH" != "/etc/wireguard/wg0.conf" ]]; then
-    # ln -sf "$WG_CONF_PATH" /etc/wireguard/wg0.conf
-    cp -f "$WG_CONF_PATH" /etc/wireguard/wg0.conf
+# 执行配置脚本，在启动前执行
+if [[ -n "$WG_CONF_SHELL" ]]; then
+    echo "create conf by shell: $WG_CONF_SHELL"
+    eval "$WG_CONF_SHELL"
 fi
-echo "using wireguard conf file: $WG_CONF_PATH"
 
+# 启动wireguard
 wg-quick up wg0
 if [[ ! -e /sys/class/net/wg0 ]]; then
-    echo "wg0 not found, wireguard start failed."
+    echo "wg0 not found, wireguard up failed."
     exit 1
 fi
 
 # 显示连接状况
-sleep 1 && wg show
+# sleep 1 && wg show
 echo "" && echo "wg0 is installed"
 
-# 判定是否是中继服务器, 中继服务器需要转发流量从wg0到eth0
-# RELAY_INTERF=eth0
-if [[ "$RELAY_NETINF" != "off" ]]; then
-    echo "wg0 is relay server, forwarding traffic from wg0 to $RELAY_NETINF"
-    iptables -A FORWARD -i wg0 -o $RELAY_NETINF -j ACCEPT
-    iptables -A FORWARD -i $RELAY_NETINF -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-    iptables -t nat -A POSTROUTING -o $RELAY_NETINF -j MASQUERADE
-fi
-
 trap cleanup TERM
-if [ ! -e /pause ]; then
-    mkfifo /pause
-fi
-</pause # 中断
+# if [ ! -e /pause ]; then mkfifo /pause; fi
+# </pause # 中断
 
+inotifywait -e modify,move,create,delete -mr --timefmt '%d/%m/%y %H:%M:%S' --format '%T' /etc/wireguard/ | while read date time; do
+    echo "At ${time} on ${date}, config file update detected."
+    if [[ ! -e /sys/class/net/wg0 ]]; then
+        echo "wg0 not found, wireguard down."
+        exit 1
+    fi
+    # 重载wireguard配置
+    wg syncconf wg0 <(wg-quick strip wg0)
+    # sleep 1 && wg show
+done
