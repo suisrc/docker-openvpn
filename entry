@@ -24,7 +24,7 @@ echo "" && echo "wg0 is up"
 cleanup() {
     echo "wg0 is down"
     wg-quick down wg0
-    kill TERM "$watch_pid"
+    kill -9 "$watch_pid"
     exit 0
 }
 trap cleanup TERM # HUP INT QUIT TERM
