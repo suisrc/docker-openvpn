@@ -15,8 +15,14 @@ cat `dirname $0`/server.data | grep $host | while read line; do
     fi
 
     if [[ "$2" == "ip" ]]; then
-        ip=`curl -sSL -H 'Accept: application/dns-json' https://1.1.1.1/dns-query\?type\=A\&name\=$host \
-          | jq '.Answer | to_entries[] | .value.data' | head -n 1 | sed 's/"//g'`
+        ips=`curl -sSL -H 'Accept: application/dns-json' https://1.1.1.1/dns-query\?type\=A\&name\=$host`
+        # echo "dns answer: $ips"
+        # 如果不存在 Answer 则直接退出
+        if [[ `echo $ips | jq '.Answer'` == "null" ]]; then
+            echo "127.0.0.1 $publicKey $location"
+            exit 0 # 没有IP则直接退出
+        fi
+        ip=`echo $ips | jq '.Answer | to_entries[] | .value.data' | head -n 1 | sed 's/"//g'`
         echo "$ip $publicKey $location" # 动态获取IP
     elif [[ "$2" == "" ]]; then 
         echo "$host $publicKey $location" # 默认使用域名

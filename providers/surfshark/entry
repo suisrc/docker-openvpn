@@ -22,6 +22,7 @@ if [[ $VPN_TYPE == openvpn ]]; then
     if [[ -n $VPN_REGION ]]; then
         IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"
         IFS='/' read -r port proto <<< "${VPN_PORT:-1194/udp}"
+
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, proto: $proto, location: $location"
         sed -i -e "s|<remote-ip>|$endpoint|" -e "s|<remote-port>|$port|" -e "s|<remote-proto>|$proto|" /vpn/openvpn.conf
     fi
@@ -31,6 +32,7 @@ elif [[ $VPN_TYPE == wireguard ]]; then
     if [[ -n $VPN_REGION ]]; then
         IFS=' ' read -r endpoint secret location <<< "$(bash $bin_home/tool $VPN_REGION)"
         port=${VPN_PORT:-51820} # only udp
+
         echo "region: $VPN_REGION, endpoint: $endpoint, port: $port, location: $location"
         if [[ -z "$WG_ADDRESS_KEY" ]]; then export WG_ADDRESS_KEY="10.14.0.2/16"; fi
         if [[ -z "$WG_PEER_PUBLIC_KEY" ]]; then export WG_PEER_PUBLIC_KEY="$secret"; fi
