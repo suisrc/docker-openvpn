@@ -4,13 +4,17 @@ cleanup() {
     vpn-stop
 }
 
+# if [[ "$HEALTH_SHELL" == "r-xx" ]]; then
+#     # 定时更换IP ??
 if [[ "$HEALTH_SHELL" == "none" ]]; then
     # 使用 </pause 执行中断
     if [ ! -e /pause ]; then
         echo "[vpn-wait] wait by fifo"
         trap cleanup TERM
         mkfifo /pause
-        </pause # 中断
+        base  </pause &
+        # 如果直接使用 /pause，系统无法响应cleanup内容
+        wait $! # 等待中断
         rm -f  /pause
         echo "[vpn-wait] exit by fifo"
     else 

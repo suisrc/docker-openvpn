@@ -101,10 +101,13 @@ if [[ -n "$SKIPPED_IPS" ]]; then
     echo "using wireguard skip ips: $SKIPPED_IPS"
     default_gw=$(ip route show | grep via | head -n 1 | awk '{print $3}')
     IFS=',' read -ra skip_ips <<< "$SKIPPED_IPS"
+    # 这里需要忽略错误
+    set +e
     for skip_ip in "${skip_ips[@]}"; do
         echo "[+] ip route add $skip_ip via $default_gw"
         ip route add $skip_ip via $default_gw
     done
+    set -e
 fi
 
 echo "using wireguard conf file: $WG_CONF_PATH"
