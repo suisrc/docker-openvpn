@@ -107,4 +107,4 @@ echo "" && echo "tun0 is installed"
 # 脚本启动成功后执行的内容
 vpn-poststart openvpn
 # 等待进程完成
-openvpn_pid=$openvpn_pid vpn-wait
+exec openvpn_pid=$openvpn_pid vpn-wait

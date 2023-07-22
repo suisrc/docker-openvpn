@@ -128,4 +128,4 @@ echo "" && echo "wg0 is installed"
 # 脚本启动成功后执行的内容
 vpn-poststart wireguard
 # 等待进程完成
-vpn-wait
+exec vpn-wait
